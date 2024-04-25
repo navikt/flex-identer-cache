@@ -33,4 +33,5 @@ no.nav.security.jwt:
       accepted_audience: flex-identer-cache-client-id
 
 
-AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-arkivering-oppgave\",\"clientId\":\"sykepengesoknad-arkivering-oppgave-client-id\"},{\"name\":\"dev-gcp:flex:flex-syketilfelle\",\"clientId\":\"flex-syketilfelle-client-id\"},{\"name\":\"dev-gcp:flex:flex-sykepengesoknad-backend\",\"clientId\":\"flex-sykepengesoknad-backend-client-id\"}]"
+AZURE_APP_PRE_AUTHORIZED_APPS: "[]"
+#{\"name\":\"dev-gcp:flex:sykepengesoknad-arkivering-oppgave\",\"clientId\":\"sykepengesoknad-arkivering-oppgave-client-id\"},{\"name\":\"dev-gcp:flex:flex-syketilfelle\",\"clientId\":\"flex-syketilfelle-client-id\"},{\"name\":\"dev-gcp:flex:flex-sykepengesoknad-backend\",\"clientId\":\"flex-sykepengesoknad-backend-client-id\"}

@@ -36,7 +36,7 @@ spec:
     application:
       tenant: nav.no
       enabled: true
-      allowAllUsers: true
+      allowAllUsers: false
   gcp:
     sqlInstances:
       - type: POSTGRES_14
