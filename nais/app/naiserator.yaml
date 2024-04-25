@@ -58,6 +58,10 @@ spec:
         flags:
           - name: cloudsql.logical_decoding
             value: "on"
+  accessPolicy:
+    inbound:
+      rules:
+        - application: sykepengesoknad
   env:
   {{#each env}}
      - name: {{@key}}
