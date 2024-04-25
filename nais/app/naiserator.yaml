@@ -61,6 +61,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: sykepengesoknad
   env:
   {{#each env}}
      - name: {{@key}}
