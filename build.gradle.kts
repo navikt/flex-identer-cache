@@ -17,17 +17,32 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 val githubUser: String by project
 val githubPassword: String by project
 
+// repositories {
+//    mavenCentral()
+//    maven {
+//        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+//    }
+// }
+
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+    }
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
     }
 }
-
 val testContainersVersion = "1.19.7"
 val logstashLogbackEncoderVersion = "7.4"
 val kluentVersion = "1.73"
 val tokenSupportVersion = "4.1.4"
+
+// copy pasted fra sykepengesoknad-backend
+val confluentVersion = "7.6.0"
+val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
+val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
+val avroVersion = "1.11.3"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -51,6 +66,11 @@ dependencies {
     testImplementation("org.awaitility:awaitility")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+
+    // copy pasted fra sykepengesoknad-backend
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+    implementation("org.apache.avro:avro:$avroVersion")
 }
 
 kotlin {
