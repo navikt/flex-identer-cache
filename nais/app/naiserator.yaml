@@ -48,7 +48,7 @@ spec:
         diskAutoresize: true
         databases:
           - name: flex-identer-cache-db
-            envVarPrefix: DATABASE
+
         maintenance:
           day: 2
           hour: 2
