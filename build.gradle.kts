@@ -44,6 +44,8 @@ val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
 val avroVersion = "1.11.3"
 
+val coroutinesVersion = "1.8.0"
+
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation(kotlin("stdlib"))
@@ -66,11 +68,15 @@ dependencies {
     testImplementation("org.awaitility:awaitility")
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    implementation("no.nav.syfo.kafka:kafkautils:$syfoKafkaVersion")
+    implementation("no.nav.syfo.kafka:serialisering:$syfoKafkaVersion")
 
     // copy pasted fra sykepengesoknad-backend
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
 }
 
 kotlin {
