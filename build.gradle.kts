@@ -64,6 +64,10 @@ dependencies {
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("org.apache.avro:avro:$avroVersion")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
+    implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
+
 }
 
 kotlin {
