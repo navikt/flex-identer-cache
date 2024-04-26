@@ -17,13 +17,6 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 val githubUser: String by project
 val githubPassword: String by project
 
-// repositories {
-//    mavenCentral()
-//    maven {
-//        url = uri("https://maven.pkg.github.com/navikt/maven-release")
-//    }
-// }
-
 repositories {
     mavenCentral()
     maven {
@@ -33,6 +26,7 @@ repositories {
         url = uri("https://packages.confluent.io/maven/")
     }
 }
+
 val testContainersVersion = "1.19.7"
 val logstashLogbackEncoderVersion = "7.4"
 val kluentVersion = "1.73"
@@ -43,37 +37,52 @@ val confluentVersion = "7.6.0"
 val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
 val avroVersion = "1.11.3"
+val unleashVersion = "9.2.0"
+val springdocOpenapiVersion = "2.5.0"
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("org.hibernate.validator:hibernate-validator")
-    implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-core")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
-    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
-
-    testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.awaitility:awaitility")
-    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-
-    // copy pasted fra sykepengesoknad-backend
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
-    implementation("org.apache.avro:avro:$avroVersion")
-    implementation("org.springframework.kafka:spring-kafka")
+    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
+    implementation("io.getunleash:unleash-client-java:$unleashVersion")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+    implementation("org.apache.avro:avro:$avroVersion")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.hibernate.validator:hibernate-validator")
+    implementation("org.postgresql:postgresql")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiVersion")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation(kotlin("reflect"))
+    implementation(kotlin("stdlib"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+
+
+    testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
+    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    testImplementation("org.awaitility:awaitility")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:kafka")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
+
+
+    // copy pasted fra sykepengesoknad-backend
+//    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+//    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+//    implementation("org.apache.avro:avro:$avroVersion")
+//    implementation("org.springframework.kafka:spring-kafka")
+//    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
+//    implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
+//    implementation("io.getunleash:unleash-client-java:$unleashVersion")
 }
 
 kotlin {
