@@ -1,13 +1,24 @@
 package no.nav.helse.flex.kafka
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.util.tilOsloZone
+import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
-import java.time.Instant
+
+data class Ident(
+    val idnummer: String,
+    val gjeldende: Boolean,
+    val type: IdentType,
+)
+
+enum class IdentType {
+    FOLKEREGISTERIDENT,
+    AKTORID,
+    NPID,
+}
 
 @Component
 class AivenIdenterConsumer(
@@ -27,49 +38,46 @@ class AivenIdenterConsumer(
         acknowledgment: Acknowledgment,
     ) {
         prosesserPersonhendelse(
-            cr.value(),
-            cr.timestamp(),
+            // cr.value(),
+            // cr.timestamp(),
+            cr,
         )
 
         acknowledgment.acknowledge()
     }
 
-    fun prosesserPersonhendelse(
-        personhendelse: GenericRecord,
-        timestamp: Long,
-    ) {
+    fun prosesserPersonhendelse(personhendelse: ConsumerRecord<String, GenericRecord>) {
         metrikk.personHendelseMottatt()
+        log.info("motatt")
 
-        if (personhendelse.erDodsfall) {
-            metrikk.dodsfallMottatt()
-
-            val identer = identService.hentFolkeregisterIdenterMedHistorikkForFnr(personhendelse.fnr)
-
-            if (harUutfylteSoknader(identer)) {
-                when (personhendelse.endringstype) {
-                    OPPRETTET, KORRIGERT -> {
-                        val dodsdato = personhendelse.dodsdato
-
-                        if (dodsmeldingDAO.harDodsmelding(identer)) {
-                            log.info("Oppdaterer dodsdato")
-                            dodsmeldingDAO.oppdaterDodsdato(identer, dodsdato)
-                        } else {
-                            log.info("Lagrer ny dodsmelding")
-                            dodsmeldingDAO.lagreDodsmelding(identer, dodsdato, Instant.ofEpochMilli(timestamp).tilOsloZone())
-                        }
-                    }
-                    ANNULLERT, OPPHOERT -> {
-                        log.info("Sletter dodsmelding")
-                        dodsmeldingDAO.slettDodsmelding(identer)
-                    }
-                }
-            }
-        } else {
-            log.debug("Ignorerer personhendelse med type ${personhendelse.opplysningstype}")
-        }
+        handleIdent(personhendelse)
     }
 
-    private fun harUutfylteSoknader(identer: FolkeregisterIdenter) =
-        sykepengesoknadDAO.finnSykepengesoknader(identer)
-            .any { listOf(Soknadstatus.NY, Soknadstatus.FREMTIDIG).contains(it.status) }
+    private fun handleIdent(it: ConsumerRecord<String, GenericRecord>) { // removed suspend here
+        val identListe = it.value().toIdentListe()
+        log.info("identliste opprettet" + identListe.size)
+    }
+}
+
+fun GenericRecord.toIdentListe(): List<Ident> {
+    val data = this.get("identifikatorer")
+
+    if (data !is GenericData.Array<*>) {
+        throw IllegalArgumentException("Incorrect data type for 'identifikatorer'")
+    }
+
+    return data.filterIsInstance<GenericRecord>().map {
+        val type =
+            when (val typeString = it.get("type").toString()) {
+                "FOLKEREGISTERIDENT" -> IdentType.FOLKEREGISTERIDENT
+                "AKTORID" -> IdentType.AKTORID
+                "NPID" -> IdentType.NPID
+                else -> throw IllegalStateException("Received ident with unknown type: $typeString")
+            }
+        Ident(
+            idnummer = it.get("idnummer").toString(),
+            gjeldende = it.get("gjeldende").toString().toBoolean(),
+            type = type,
+        )
+    }
 }

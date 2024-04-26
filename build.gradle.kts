@@ -74,7 +74,6 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
-
 }
 
 kotlin {
