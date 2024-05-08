@@ -17,7 +17,7 @@ class AivenKafkaProducer(
 ) {
     val log = logger()
 
-    //TODO Endre til identerDTO osv
+    // TODO Endre til identerDTO osv
     fun produserMelding(soknad: SykepengesoknadDTO): RecordMetadata {
         try {
             if (environmentToggles.isQ()) {

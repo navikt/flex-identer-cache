@@ -4,12 +4,16 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerConfig.*
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -50,6 +54,20 @@ class AivenKafkaConfig(
             SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to kafkaCredstorePassword,
             SslConfigs.SSL_KEY_PASSWORD_CONFIG to kafkaCredstorePassword,
         )
+
+    @Bean
+    fun sykepengesoknadProducer(): KafkaProducer<String, SykepengesoknadDTO> {
+        val configs =
+            mapOf(
+                KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+                VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
+                PARTITIONER_CLASS_CONFIG to SykepengesoknadPartitioner::class.java,
+                ACKS_CONFIG to "all",
+                RETRIES_CONFIG to 10,
+                RETRY_BACKOFF_MS_CONFIG to 100,
+            ) + commonConfig()
+        return KafkaProducer<String, SykepengesoknadDTO>(configs)
+    }
 
     @Bean
     fun aivenKafkaListenerContainerFactory(
