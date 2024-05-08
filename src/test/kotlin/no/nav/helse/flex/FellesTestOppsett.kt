@@ -1,7 +1,6 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
-import jakarta.annotation.PostConstruct
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.repository.IdenterRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -15,16 +14,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.web.client.RestTemplate
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.KafkaContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.util.*
 import kotlin.concurrent.thread
-
 
 private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
 
@@ -51,23 +47,10 @@ abstract class FellesTestOppsett {
     }
 
     @Autowired
-    lateinit var istilgangskontrollRestTemplate: RestTemplate
-
-    @Autowired
     lateinit var fakeUnleash: FakeUnleash
-
-    lateinit var istilgangskontrollMockRestServiceServer: MockRestServiceServer
-    lateinit var flexSyketilfelleMockRestServiceServer: MockRestServiceServer
-
-    @PostConstruct
-    fun setupRestServiceServers() {
-        istilgangskontrollMockRestServiceServer =
-            MockRestServiceServer.bindTo(istilgangskontrollRestTemplate).ignoreExpectOrder(true).build()
-    }
 
     @SpyBean
     lateinit var aivenKafkaProducer: AivenKafkaProducer
-
 
     @AfterAll
     fun `Disable unleash toggles`() {
@@ -156,7 +139,6 @@ fun FellesTestOppsett.buildAzureClaimSet(
         claims = claims,
     )
 }
-
 
 fun MockOAuth2Server.token(
     subject: String,

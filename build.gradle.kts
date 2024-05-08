@@ -65,7 +65,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("org.awaitility:awaitility")
@@ -73,7 +72,6 @@ dependencies {
     testImplementation("org.testcontainers:kafka")
     testImplementation("org.testcontainers:postgresql")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
-
 
     // copy pasted fra sykepengesoknad-backend
 //    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
