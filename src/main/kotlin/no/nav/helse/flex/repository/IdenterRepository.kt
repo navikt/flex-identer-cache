@@ -13,8 +13,8 @@ import java.time.OffsetDateTime
 @Transactional
 @Repository
 interface IdenterRepository : CrudRepository<IdenterDbRecord, String> {
-    @Query("SELECT DISTINCT * FROM identer f")
-    fun finnAlleDistinctTags(): List<String?>
+    @Query("SELECT DISTINCT * FROM identer")
+    fun finnAlleDistinctTags(): Set<String>
 
     // Lagrer en ident i databasen
     @Modifying
