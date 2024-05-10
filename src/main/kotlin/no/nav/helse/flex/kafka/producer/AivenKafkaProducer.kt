@@ -2,36 +2,42 @@ package no.nav.helse.flex.kafka.producer
 
 import no.nav.helse.flex.EnvironmentToggles
 import no.nav.helse.flex.kafka.IDENTER_TOPIC
+import no.nav.helse.flex.kafka.Ident
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.serialisertTilString
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import org.apache.avro.generic.GenericData
+import org.apache.avro.generic.GenericRecord
+import org.apache.avro.reflect.ReflectData
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
 class AivenKafkaProducer(
-    private val producer: KafkaProducer<String, SykepengesoknadDTO>,
+    @Autowired
+    private val producer: KafkaProducer<String, GenericRecord>,
+
     private val environmentToggles: EnvironmentToggles,
 ) {
     val log = logger()
 
-    // TODO Endre til identerDTO osv
-    fun produserMelding(soknad: SykepengesoknadDTO): RecordMetadata {
+    // TODO Brukes kanskje kun til testing?
+    fun produserMelding(ident: Ident): RecordMetadata {
         try {
             if (environmentToggles.isQ()) {
-                log.info("Publiserer identer ${soknad.id} på topic $IDENTER_TOPIC\n${soknad.serialisertTilString()}")
+                log.info("Publiserer identer ${ident.idnummer} på topic $IDENTER_TOPIC\n${ident.serialisertTilString()}")
             }
             return producer.send(
                 ProducerRecord(
                     IDENTER_TOPIC,
-                    soknad.id,
-                    soknad,
+                    ident.idnummer,
+                    ident.toGenericRecord(),
                 ),
             ).get()
         } catch (e: Throwable) {
-            log.error("Uventet exception ved publisering av søknad ${soknad.id} på topic $IDENTER_TOPIC", e)
+            log.error("Uventet exception ved publisering av ident av type ${ident.type} på topic $IDENTER_TOPIC", e)
             // get() kaster InterruptedException eller ExecutionException. Begge er checked, så pakker  de den inn i
             // en RuntimeException da en CheckedException kan forhindre rollback i metoder annotert med @Transactional.
             throw AivenKafkaException(e)
