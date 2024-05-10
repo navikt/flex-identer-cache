@@ -2,9 +2,10 @@ package no.nav.helse.flex.kafka
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
@@ -56,17 +57,18 @@ class AivenKafkaConfig(
         )
 
     @Bean
-    fun sykepengesoknadProducer(): KafkaProducer<String, SykepengesoknadDTO> {
+    fun identKafkaProducer(): KafkaProducer<String, GenericRecord> {
         val configs =
             mapOf(
+                SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
                 KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-                VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
-                PARTITIONER_CLASS_CONFIG to SykepengesoknadPartitioner::class.java,
+                VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
+                PARTITIONER_CLASS_CONFIG to IdentPartitioner::class.java,
                 ACKS_CONFIG to "all",
                 RETRIES_CONFIG to 10,
                 RETRY_BACKOFF_MS_CONFIG to 100,
             ) + commonConfig()
-        return KafkaProducer<String, SykepengesoknadDTO>(configs)
+        return KafkaProducer<String, GenericRecord>(configs)
     }
 
     @Bean
@@ -138,4 +140,4 @@ class AivenKafkaConfig(
     }
 }
 
-const val IDENTER_TOPIC = "pdl." + "aktor-v1"
+const val IDENTER_TOPIC = "pdl." + "aktor-v2"

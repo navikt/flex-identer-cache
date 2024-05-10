@@ -39,6 +39,7 @@ val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
 val avroVersion = "1.11.3"
 val unleashVersion = "9.2.0"
 val springdocOpenapiVersion = "2.5.0"
+val mockitoKotlinVersion = "2.2.0"
 
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -76,6 +77,7 @@ dependencies {
     testImplementation("org.testcontainers:kafka")
     testImplementation("org.testcontainers:postgresql")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
 
     // copy pasted fra sykepengesoknad-backend
 //    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")

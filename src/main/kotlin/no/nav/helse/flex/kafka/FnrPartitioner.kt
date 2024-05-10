@@ -1,6 +1,5 @@
 package no.nav.helse.flex.kafka
 
-import no.nav.helse.flex.sykepengesoknad.kafka.SykepengesoknadDTO
 import org.apache.kafka.clients.producer.Partitioner
 import org.apache.kafka.common.Cluster
 import org.apache.kafka.common.InvalidRecordException
@@ -38,7 +37,7 @@ abstract class FnrPartitioner : Partitioner {
     }
 }
 
-class SykepengesoknadPartitioner : FnrPartitioner() {
+class IdentPartitioner : FnrPartitioner() {
     override fun partition(
         topic: String?,
         key: Any?,
@@ -47,8 +46,8 @@ class SykepengesoknadPartitioner : FnrPartitioner() {
         valueBytes: ByteArray?,
         cluster: Cluster?,
     ): Int {
-        val soknad = value as SykepengesoknadDTO
-        val actualKey: String = soknad.fnr
+        val ident = value as Ident
+        val actualKey: String = ident.idnummer
         return super.partition(topic, actualKey, actualKey.toByteArray(), value, valueBytes, cluster)
     }
 }

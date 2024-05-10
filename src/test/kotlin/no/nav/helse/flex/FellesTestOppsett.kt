@@ -1,14 +1,17 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
+import no.nav.helse.flex.kafka.AivenIdenterConsumer
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.repository.IdenterRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.checkerframework.checker.signature.qual.Identifier
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
@@ -50,7 +53,11 @@ abstract class FellesTestOppsett {
     lateinit var fakeUnleash: FakeUnleash
 
     @SpyBean
+    @Qualifier("identKafkaProducer")
     lateinit var aivenKafkaProducer: AivenKafkaProducer
+
+    @Autowired
+    lateinit var aivenIdenterConsumer: AivenIdenterConsumer
 
     @AfterAll
     fun `Disable unleash toggles`() {
