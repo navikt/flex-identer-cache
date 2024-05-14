@@ -57,13 +57,13 @@ class AivenKafkaConfig(
         )
 
     @Bean
-    fun identKafkaProducer(): KafkaProducer<String, GenericRecord> {
+    fun aktorKafkaProducer(): KafkaProducer<String, GenericRecord> {
         val configs =
             mapOf(
                 SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
                 KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
-                PARTITIONER_CLASS_CONFIG to IdentPartitioner::class.java,
+                PARTITIONER_CLASS_CONFIG to AktorPartitioner::class.java,
                 ACKS_CONFIG to "all",
                 RETRIES_CONFIG to 10,
                 RETRY_BACKOFF_MS_CONFIG to 100,

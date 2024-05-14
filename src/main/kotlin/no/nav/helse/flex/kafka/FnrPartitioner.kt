@@ -37,7 +37,7 @@ abstract class FnrPartitioner : Partitioner {
     }
 }
 
-class IdentPartitioner : FnrPartitioner() {
+class AktorPartitioner : FnrPartitioner() {
     override fun partition(
         topic: String?,
         key: Any?,
