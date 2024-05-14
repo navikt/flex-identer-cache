@@ -3,11 +3,10 @@ package no.nav.helse.flex
 import io.getunleash.FakeUnleash
 import no.nav.helse.flex.kafka.AivenIdenterConsumer
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
-import no.nav.helse.flex.repository.IdenterRepository
+import no.nav.helse.flex.repository.AktorRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.checkerframework.checker.signature.qual.Identifier
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,18 +41,18 @@ abstract class FellesTestOppsett {
     lateinit var mockMvc: MockMvc
 
     @Autowired
-    lateinit var identerRepository: IdenterRepository
+    lateinit var aktorRepository: AktorRepository
 
     @AfterAll
     fun `Vi resetter databasen`() {
-        identerRepository.deleteAll()
+        aktorRepository.deleteAll()
     }
 
     @Autowired
     lateinit var fakeUnleash: FakeUnleash
 
     @SpyBean
-    @Qualifier("identKafkaProducer")
+    @Qualifier("aktorKafkaProducer")
     lateinit var aivenKafkaProducer: AivenKafkaProducer
 
     @Autowired

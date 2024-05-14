@@ -53,7 +53,7 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
 
 fun AivenIdenterConsumer.ventPåRecords(
     antall: Int,
-    duration: Duration = Duration.ofSeconds(9)
+    duration: Duration = Duration.ofSeconds(9),
 ): List<ConsumerRecord<String, GenericRecord>> {
     val alle = ArrayList<ConsumerRecord<String, GenericRecord>>()
     val deadline = System.currentTimeMillis() + duration.toMillis()

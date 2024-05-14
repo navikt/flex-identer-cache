@@ -1,6 +1,6 @@
 package no.nav.helse.flex.kafka
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.repository.IdenterRepository
+import no.nav.helse.flex.repository.AktorRepository
 import no.nav.helse.flex.util.Metrikk
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
@@ -24,7 +24,7 @@ data class Ident(
         return GenericRecordBuilder(avroSchema).apply {
             set("idnummer", this@Ident.idnummer)
             set("gjeldende", this@Ident.gjeldende)
-            set("type", this@Ident.type.name)  // Assuming `IdentType` is an enum
+            set("type", this@Ident.type.name)
         }.build()
     }
 }
@@ -38,7 +38,7 @@ enum class IdentType {
 @Component
 class AivenIdenterConsumer(
     private val metrikk: Metrikk,
-    private val identerRepository: IdenterRepository,
+    private val aktorRepository: AktorRepository,
 ) {
     val log = logger()
 
@@ -75,7 +75,7 @@ class AivenIdenterConsumer(
         // Lagre ident i repo
         identListe.forEach { ident ->
             log.info("lagrer ident i repo")
-            identerRepository.lagre(
+            aktorRepository.lagre(
                 id = ident.idnummer,
                 type = ident.type.toString(),
                 gjeldende = ident.gjeldende ?: false,

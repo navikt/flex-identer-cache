@@ -42,7 +42,7 @@ class IdenterTest : FellesTestOppsett() {
                 type = IdentType.AKTORID,
                 gjeldende = true,
             )
-        identerRepository.lagre(ident.idnummer, OffsetDateTime.now(), ident.type.name, ident.gjeldende)
+        aktorRepository.lagre(ident.idnummer, OffsetDateTime.now(), ident.type.name, ident.gjeldende)
         assert(antallIdenterIDb() == 1)
     }
 
