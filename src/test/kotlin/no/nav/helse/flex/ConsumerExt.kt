@@ -1,10 +1,6 @@
 package no.nav.helse.flex
 
-import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.helse.flex.kafka.AivenIdenterConsumer
-import no.nav.helse.flex.kafka.Ident
-import no.nav.helse.flex.kafka.IdentType
-import no.nav.helse.flex.util.OBJECT_MAPPER
+import no.nav.helse.flex.kafka.AivenAktorConsumer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -51,7 +47,7 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
     return alle
 }
 
-fun AivenIdenterConsumer.ventPåRecords(
+fun AivenAktorConsumer.ventPåRecords(
     antall: Int,
     duration: Duration = Duration.ofSeconds(9),
 ): List<ConsumerRecord<String, GenericRecord>> {
@@ -71,18 +67,4 @@ fun AivenIdenterConsumer.ventPåRecords(
     }
 
     return alle
-}
-
-fun List<ConsumerRecord<String, GenericRecord>>.tilIdenter(): List<Ident> {
-    return this.map {
-        Ident(
-            idnummer = it.value()["idnummer"].toString(),
-            type = enumValueOf<IdentType>(it.value()["type"].toString()),
-            gjeldende = it.value()["gjeldende"].toString().toBoolean(),
-        )
-    }
-}
-
-private fun String.tilIdent(): Ident {
-    return OBJECT_MAPPER.readValue(this)
 }

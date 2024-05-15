@@ -140,4 +140,4 @@ class AivenKafkaConfig(
     }
 }
 
-const val IDENTER_TOPIC = "pdl." + "aktor-v2"
+const val AKTOR_TOPIC = "pdl." + "aktor-v2"

@@ -1,10 +1,9 @@
 package no.nav.helse.flex.kafka.producer
 
 import no.nav.helse.flex.EnvironmentToggles
-import no.nav.helse.flex.kafka.IDENTER_TOPIC
-import no.nav.helse.flex.kafka.Ident
+import no.nav.helse.flex.kafka.AKTOR_TOPIC
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.serialisertTilString
+import no.nav.helse.flex.repository.Aktor
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -21,20 +20,20 @@ class AivenKafkaProducer(
     val log = logger()
 
     // TODO Brukes kanskje kun til testing?
-    fun produserMelding(aktor: Ident): RecordMetadata {
+    fun produserMelding(aktor: Aktor): RecordMetadata {
         try {
             if (environmentToggles.isQ()) {
-                log.info("Publiserer identer ${aktor.idnummer} på topic $IDENTER_TOPIC\n${aktor.serialisertTilString()}")
+                log.info("Publiserer identer på topic $AKTOR_TOPIC\n")
             }
             return producer.send(
                 ProducerRecord(
-                    IDENTER_TOPIC,
-                    aktor.idnummer,
-                    aktor.toGenericRecord(),
+                    AKTOR_TOPIC,
+                    aktor.aktorId,
+                    aktor.tilGenericRecord(),
                 ),
             ).get()
         } catch (e: Throwable) {
-            log.error("Uventet exception ved publisering av ident av type ${aktor.type} på topic $IDENTER_TOPIC", e)
+            log.error("Uventet exception ved publisering av aktor på topic $AKTOR_TOPIC", e)
             // get() kaster InterruptedException eller ExecutionException. Begge er checked, så pakker  de den inn i
             // en RuntimeException da en CheckedException kan forhindre rollback i metoder annotert med @Transactional.
             throw AivenKafkaException(e)
