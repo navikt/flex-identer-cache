@@ -1,9 +1,10 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
-import no.nav.helse.flex.kafka.AivenIdenterConsumer
+import no.nav.helse.flex.kafka.AivenAktorConsumer
 import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.repository.AktorRepository
+import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -43,6 +44,9 @@ abstract class FellesTestOppsett {
     @Autowired
     lateinit var aktorRepository: AktorRepository
 
+    @Autowired
+    lateinit var aktorService: AktorService
+
     @AfterAll
     fun `Vi resetter databasen`() {
         aktorRepository.deleteAll()
@@ -56,7 +60,7 @@ abstract class FellesTestOppsett {
     lateinit var aivenKafkaProducer: AivenKafkaProducer
 
     @Autowired
-    lateinit var aivenIdenterConsumer: AivenIdenterConsumer
+    lateinit var aivenAktorConsumer: AivenAktorConsumer
 
     @AfterAll
     fun `Disable unleash toggles`() {
