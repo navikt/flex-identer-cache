@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka
 
+import no.nav.helse.flex.repository.Aktor
 import org.apache.kafka.clients.producer.Partitioner
 import org.apache.kafka.common.Cluster
 import org.apache.kafka.common.InvalidRecordException
@@ -46,8 +47,8 @@ class AktorPartitioner : FnrPartitioner() {
         valueBytes: ByteArray?,
         cluster: Cluster?,
     ): Int {
-        val ident = value as Ident
-        val actualKey: String = ident.idnummer
+        val aktor = value as Aktor
+        val actualKey: String = aktor.aktorId
         return super.partition(topic, actualKey, actualKey.toByteArray(), value, valueBytes, cluster)
     }
 }
