@@ -23,14 +23,14 @@ class AktorTest : FellesTestOppsett() {
                 idnummer = 12345678234.toString(),
                 type = IdentType.NPID.name,
                 gjeldende = true,
-                oppdatert = OffsetDateTime.now()
+                oppdatert = OffsetDateTime.now(),
             )
         val aktor =
             Aktor(
                 aktorId = "1345676",
                 identifikatorer = listOf(ident),
             )
-        aivenKafkaProducer.produserMelding(aktor)
+//        aivenKafkaProducer.produserMelding(aktor)
         val aktorRecord = aivenAktorConsumer.ventPåRecords(antall = 1, java.time.Duration.ofSeconds(2)).first()
         val hentetAktor = aktorRecord.value().toAktor(aktorRecord.key())
         assert(hentetAktor.identifikatorer.first().idnummer == 12345678234.toString())
@@ -47,7 +47,7 @@ class AktorTest : FellesTestOppsett() {
                 idnummer = 12345678234.toString(),
                 type = IdentType.FOLKEREGISTERIDENT.name,
                 gjeldende = true,
-                oppdatert = OffsetDateTime.now()
+                oppdatert = OffsetDateTime.now(),
             )
         val aktor =
             Aktor(

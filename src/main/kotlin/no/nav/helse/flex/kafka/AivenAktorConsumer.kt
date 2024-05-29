@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 @Component
 class AivenAktorConsumer(
     private val metrikk: Metrikk,
-    private val aktorService: AktorService
+    private val aktorService: AktorService,
 ) {
     val log = logger()
 

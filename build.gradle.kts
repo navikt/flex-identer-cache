@@ -44,7 +44,6 @@ val mockitoKotlinVersion = "2.2.0"
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
-    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
     implementation("io.micrometer:micrometer-registry-prometheus")

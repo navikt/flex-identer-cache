@@ -26,7 +26,7 @@ fun GenericRecord.toIdentListe(): List<Identifikator> {
             idnummer = identifikator.get("idnummer").toString(),
             gjeldende = identifikator.get("gjeldende").toString().toBoolean(),
             type = type.name,
-            oppdatert = OffsetDateTime.now()
+            oppdatert = OffsetDateTime.now(),
         )
     }
 }
@@ -51,7 +51,7 @@ fun GenericRecord.toAktor(aktorId: String): Aktor {
                 idnummer = identifikator.get("idnummer").toString(),
                 type = type.name,
                 gjeldende = identifikator.get("gjeldende").toString().toBoolean(),
-                oppdatert = OffsetDateTime.now()
+                oppdatert = OffsetDateTime.now(),
             )
         }
 

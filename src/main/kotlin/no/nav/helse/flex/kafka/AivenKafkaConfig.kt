@@ -2,22 +2,18 @@ package no.nav.helse.flex.kafka
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerConfig.*
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
@@ -57,45 +53,7 @@ class AivenKafkaConfig(
         )
 
     @Bean
-    fun aktorKafkaProducer(): KafkaProducer<String, GenericRecord> {
-        val configs =
-            mapOf(
-                SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
-                KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-                VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
-                PARTITIONER_CLASS_CONFIG to AktorPartitioner::class.java,
-                ACKS_CONFIG to "all",
-                RETRIES_CONFIG to 10,
-                RETRY_BACKOFF_MS_CONFIG to 100,
-            ) + commonConfig()
-        return KafkaProducer<String, GenericRecord>(configs)
-    }
-
-    @Bean
-    fun aivenKafkaListenerContainerFactory(
-        aivenKafkaErrorHandler: AivenKafkaErrorHandler,
-    ): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val config =
-            commonConfig() +
-                mapOf(
-                    ConsumerConfig.GROUP_ID_CONFIG to "syfosoknad-consumer",
-                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
-                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to false,
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
-                    ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
-                )
-        val consumerFactory = DefaultKafkaConsumerFactory<String, String>(config)
-
-        val factory = ConcurrentKafkaListenerContainerFactory<String, String>()
-        factory.consumerFactory = consumerFactory
-        factory.setCommonErrorHandler(aivenKafkaErrorHandler)
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        return factory
-    }
-
-    @Bean
+    @Profile("!test")
     fun aivenSchemaRegistryClient(): SchemaRegistryClient {
         return CachedSchemaRegistryClient(
             kafkaSchemaRegistryUrl,
@@ -108,6 +66,7 @@ class AivenKafkaConfig(
     }
 
     @Bean
+//    @Profile("!test")
     fun kafkaAvroListenerContainerFactory(
         aivenSchemaRegistryClient: SchemaRegistryClient,
         aivenKafkaErrorHandler: AivenKafkaErrorHandler,
@@ -117,7 +76,7 @@ class AivenKafkaConfig(
                 mapOf(
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    ConsumerConfig.GROUP_ID_CONFIG to "sykepengesoknad-backend",
+                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
@@ -126,10 +85,8 @@ class AivenKafkaConfig(
                 )
 
         val consumerFactory =
-            DefaultKafkaConsumerFactory(
+            DefaultKafkaConsumerFactory<String, GenericRecord>(
                 genericAvroConsumerConfig,
-                StringDeserializer(),
-                KafkaAvroDeserializer(aivenSchemaRegistryClient),
             )
 
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()

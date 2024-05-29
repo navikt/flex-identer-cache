@@ -1,8 +1,8 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
+import no.nav.helse.flex.config.KafkaConfig
 import no.nav.helse.flex.kafka.AivenAktorConsumer
-import no.nav.helse.flex.kafka.producer.AivenKafkaProducer
 import no.nav.helse.flex.repository.AktorRepository
 import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -11,12 +11,10 @@ import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.test.web.servlet.MockMvc
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.KafkaContainer
@@ -32,7 +30,7 @@ private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureObservability
 @EnableMockOAuth2Server
-@SpringBootTest(classes = [Application::class])
+@SpringBootTest(classes = [Application::class, KafkaConfig::class])
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE, printOnlyOnFailure = false)
 abstract class FellesTestOppsett {
     @Autowired
@@ -54,10 +52,6 @@ abstract class FellesTestOppsett {
 
     @Autowired
     lateinit var fakeUnleash: FakeUnleash
-
-    @SpyBean
-    @Qualifier("aktorKafkaProducer")
-    lateinit var aivenKafkaProducer: AivenKafkaProducer
 
     @Autowired
     lateinit var aivenAktorConsumer: AivenAktorConsumer
@@ -87,6 +81,8 @@ abstract class FellesTestOppsett {
                 KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3")).apply {
                     start()
                     System.setProperty("KAFKA_BROKERS", bootstrapServers)
+                    System.setProperty("AIVEN_DOKUMENT_TOPIC", "test-topic")
+                    System.setProperty("KAFKA_SCHEMA_REGISTRY", "mock://localhost.nav")
                 }
             }.also { threads.add(it) }
 
