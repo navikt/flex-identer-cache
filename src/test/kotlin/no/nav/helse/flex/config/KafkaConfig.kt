@@ -98,6 +98,7 @@ class KafkaConfig(
 
     @Bean
     fun kafkaProducerForTest(kafkaAvroSerializer: KafkaAvroSerializer): KafkaProducer<String, Any> {
+        //TODO set topic pdl.aktor-v2
         val configs =
             mapOf(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
