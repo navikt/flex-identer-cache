@@ -25,23 +25,25 @@ interface AktorRepository : CrudRepository<Aktor, String> {
         """INSERT INTO aktor (aktor_id) 
            VALUES (:aktorId)
            ON CONFLICT (aktor_id) 
-           DO NOTHING"""
+           DO NOTHING""",
     )
-    fun lagreAktor(@Param("aktorId") aktorId: String): Int
+    fun lagreAktor(
+        @Param("aktorId") aktorId: String,
+    ): Int
 
     @Modifying
     @Query(
         """INSERT INTO identifikator (idnummer, oppdatert, type, gjeldende, aktor_id) 
            VALUES (:idnummer, :oppdatert, :type, :gjeldende, :aktorId)
            ON CONFLICT (idnummer) 
-           DO NOTHING"""
+           DO NOTHING""",
     )
     fun lagreIdentifikator(
         @Param("idnummer") idnummer: String,
         @Param("oppdatert") oppdatert: OffsetDateTime,
         @Param("type") type: String,
         @Param("gjeldende") gjeldende: Boolean,
-        @Param("aktorId") aktorId: String
+        @Param("aktorId") aktorId: String,
     ): Int
 
     @Query(
@@ -93,7 +95,7 @@ data class Identifikator(
     var idnummer: String,
     var type: String,
     var gjeldende: Boolean,
-    var oppdatert: OffsetDateTime
+    var oppdatert: OffsetDateTime,
 )
 
 enum class IdentType {

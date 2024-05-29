@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AktorService(private val aktorRepository: AktorRepository) {
-
     @Transactional
     fun lagreAktor(aktor: Aktor) {
         aktorRepository.lagreAktor(aktor.aktorId)
@@ -15,7 +14,7 @@ class AktorService(private val aktorRepository: AktorRepository) {
                 oppdatert = identifikator.oppdatert,
                 type = identifikator.type,
                 gjeldende = identifikator.gjeldende,
-                aktorId = aktor.aktorId
+                aktorId = aktor.aktorId,
             )
         }
     }
