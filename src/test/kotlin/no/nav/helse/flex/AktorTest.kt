@@ -3,7 +3,9 @@ package no.nav.helse.flex
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.IdentType
 import no.nav.helse.flex.repository.Identifikator
-import no.nav.helse.flex.util.toAktor
+import no.nav.helse.flex.util.OBJECT_MAPPER
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -16,28 +18,26 @@ class AktorTest : FellesTestOppsett() {
 
     @Test
     fun `les identer fra topic`() {
-        // TODO: les data fra mock topic?
+        val ident = Identifikator(
+            idnummer = 12345678234.toString(),
+            type = IdentType.NPID.name,
+            gjeldende = true,
+            oppdatert = OffsetDateTime.now()
+        )
+        val aktor = Aktor(
+            aktorId = "1345676",
+            identifikatorer = listOf(ident)
+        )
 
-        val ident =
-            Identifikator(
-                idnummer = 12345678234.toString(),
-                type = IdentType.NPID.name,
-                gjeldende = true,
-                oppdatert = OffsetDateTime.now(),
-            )
-        val aktor =
-            Aktor(
-                aktorId = "1345676",
-                identifikatorer = listOf(ident),
-            )
-//        aivenKafkaProducer.produserMelding(aktor)
-        val aktorRecord = aivenAktorConsumer.ventPåRecords(antall = 1, java.time.Duration.ofSeconds(2)).first()
-        val hentetAktor = aktorRecord.value().toAktor(aktorRecord.key())
-        assert(hentetAktor.identifikatorer.first().idnummer == 12345678234.toString())
+        val record = ProducerRecord<String, Any>("pdl.aktor-v2", aktor.aktorId.serialisertTilString())
+        kafkaProducerForTest.send(record)
+        kafkaProducerForTest.flush()
 
-//        identerRepository.lagre(ident.idnummer, OffsetDateTime.now(), ident.type.name, ident.gjeldende)
-//        assert(antallIdenterIDb() == 1)
-//        Assertions.assertEquals(12345678234.toString(), identerRepository.finnAlleDistinctTags().first())
+        aivenAktorConsumer.ventPåRecords(1)
+
+        val aktorRecordFraKafka = aivenAktorConsumer.ventPåRecords(antall = 1, java.time.Duration.ofSeconds(2)).first()
+        val hentetAktor = OBJECT_MAPPER.convertValue(aktorRecordFraKafka, Aktor::class.java)
+        Assertions.assertEquals(12345678234.toString(), hentetAktor.identifikatorer.first().idnummer)
     }
 
     @Test

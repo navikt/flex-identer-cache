@@ -8,6 +8,7 @@ import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,6 +45,9 @@ abstract class FellesTestOppsett {
 
     @Autowired
     lateinit var aktorService: AktorService
+
+    @Autowired
+    lateinit var kafkaProducerForTest: KafkaProducer<String, Any>
 
     @AfterAll
     fun `Vi resetter databasen`() {
