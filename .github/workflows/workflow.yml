@@ -5,7 +5,6 @@ on:
 
 jobs:
   felles-workflow:
-    timeout-minutes: 10
     uses: navikt/flex-github-actions-workflows/.github/workflows/spring-boot.yml@main
     permissions:
       packages: read
