@@ -65,8 +65,8 @@ class AivenKafkaConfig(
         )
     }
 
+    //    @Profile("!test")
     @Bean
-//    @Profile("!test")
     fun kafkaAvroListenerContainerFactory(
         aivenSchemaRegistryClient: SchemaRegistryClient,
         aivenKafkaErrorHandler: AivenKafkaErrorHandler,
