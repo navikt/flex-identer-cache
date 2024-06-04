@@ -18,16 +18,18 @@ class AktorTest : FellesTestOppsett() {
 
     @Test
     fun `les identer fra topic`() {
-        val ident = Identifikator(
-            idnummer = 12345678234.toString(),
-            type = IdentType.NPID.name,
-            gjeldende = true,
-            oppdatert = OffsetDateTime.now()
-        )
-        val aktor = Aktor(
-            aktorId = "1345676",
-            identifikatorer = listOf(ident)
-        )
+        val ident =
+            Identifikator(
+                idnummer = 12345678234.toString(),
+                type = IdentType.NPID.name,
+                gjeldende = true,
+                oppdatert = OffsetDateTime.now(),
+            )
+        val aktor =
+            Aktor(
+                aktorId = "1345676",
+                identifikatorer = listOf(ident),
+            )
 
         val record = ProducerRecord<String, Any>("pdl.aktor-v2", aktor.aktorId.serialisertTilString())
         kafkaProducerForTest.send(record)
