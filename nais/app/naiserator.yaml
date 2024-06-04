@@ -55,6 +55,8 @@ spec:
         flags:
           - name: cloudsql.logical_decoding
             value: "on"
+  kafka:
+    pool: {{kafkaPool}}
   accessPolicy:
     inbound:
       rules:
