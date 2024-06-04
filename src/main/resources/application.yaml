@@ -47,4 +47,5 @@ no.nav.security.jwt:
       accepted_audience: ${TOKEN_X_CLIENT_ID}
 
 
-KAFKA_BROKERS: ""
+aiven-kafka:
+  auto-offset-reset: none
