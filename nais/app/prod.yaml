@@ -8,3 +8,4 @@ db_highAvailability: true
 db_pointInTimeRecovery: true
 env:
   SPRING_PROFILES_ACTIVE: default
+  SKRIVEMODUS: READWRITE
