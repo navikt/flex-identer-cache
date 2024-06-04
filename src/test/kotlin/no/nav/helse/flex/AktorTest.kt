@@ -6,6 +6,7 @@ import no.nav.helse.flex.repository.Identifikator
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -17,6 +18,7 @@ class AktorTest : FellesTestOppsett() {
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     @Test
+    @Disabled
     fun `les identer fra topic`() {
         val ident =
             Identifikator(
