@@ -31,7 +31,7 @@ class AktorConsumer(
 
     @KafkaListener(
         topics = [AKTOR_TOPIC],
-        id = "identer",
+        id = "flex-aktor-v1",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
