@@ -7,8 +7,8 @@ import no.nav.helse.flex.util.toAktor
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericDatumReader
 import org.apache.avro.generic.GenericRecord
+import org.apache.avro.io.BinaryDecoder
 import org.apache.avro.io.DecoderFactory
-import org.apache.avro.io.JsonDecoder
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -37,7 +37,7 @@ class AktorConsumer(
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        consumerRecord: ConsumerRecord<String, String>,
+        consumerRecord: ConsumerRecord<String, ByteArray>,
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
@@ -52,7 +52,7 @@ class AktorConsumer(
 
         try {
             val datumReader = GenericDatumReader<GenericRecord>(schema)
-            val decoder: JsonDecoder = DecoderFactory.get().jsonDecoder(schema, message)
+            val decoder: BinaryDecoder = DecoderFactory.get().binaryDecoder(message, null)
             val record = datumReader.read(null, decoder)
 
             val identifikatorer = record.get("identifikatorer") as List<*>

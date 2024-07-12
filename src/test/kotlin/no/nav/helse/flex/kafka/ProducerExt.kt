@@ -5,8 +5,8 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.generic.GenericRecord
+import org.apache.avro.io.BinaryEncoder
 import org.apache.avro.io.EncoderFactory
-import org.apache.avro.io.JsonEncoder
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.io.ByteArrayOutputStream
@@ -32,7 +32,7 @@ fun KafkaProducer<String, String>.produceAvroRecord(aktor: Aktor): ProducerRecor
 
     val stream = ByteArrayOutputStream()
     val datumWriter = GenericDatumWriter<GenericRecord>(schema)
-    val encoder: JsonEncoder = EncoderFactory.get().jsonEncoder(schema, stream)
+    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(stream, null)
     datumWriter.write(avroAktor, encoder)
     encoder.flush()
 
