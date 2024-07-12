@@ -1,9 +1,6 @@
 package no.nav.helse.flex.kafka
 
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.helse.flex.repository.Aktor
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -12,7 +9,6 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
@@ -28,10 +24,6 @@ class AivenKafkaConfig(
     @Value("\${KAFKA_TRUSTSTORE_PATH}") private val kafkaTruststorePath: String,
     @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
     @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val kafkaSchemaRegistryUrl: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUsername: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
-    @Value("\${aiven-kafka.auto-offset-reset}") private val kafkaAutoOffsetReset: String,
 ) {
     fun commonConfig() =
         mapOf(
@@ -53,20 +45,7 @@ class AivenKafkaConfig(
         )
 
     @Bean
-    @Profile("!test")
-    fun aivenSchemaRegistryClient(): SchemaRegistryClient {
-        return CachedSchemaRegistryClient(
-            kafkaSchemaRegistryUrl,
-            20,
-            mapOf(
-                KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
-                KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUsername:$schemaRegistryPassword",
-            ),
-        )
-    }
-
-    @Bean
-    fun consumerFactory(): ConsumerFactory<String, Aktor?> {
+    fun consumerFactory(): ConsumerFactory<String, GenericRecord> {
         val props = HashMap<String, Any>()
         props[ConsumerConfig.GROUP_ID_CONFIG] = "flex-identer-cache"
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
@@ -76,9 +55,11 @@ class AivenKafkaConfig(
     }
 
     @Bean
-    fun kafkaAvroListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Aktor?> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, Aktor?>()
-        factory.consumerFactory = consumerFactory()
+    fun kafkaAvroListenerContainerFactory(
+        consumerFactory: ConsumerFactory<String, GenericRecord>,
+    ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
+        factory.consumerFactory = consumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         return factory
     }
