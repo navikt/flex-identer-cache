@@ -1,8 +1,8 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
-import no.nav.helse.flex.config.KafkaConfig
-import no.nav.helse.flex.kafka.AivenAktorConsumer
+import no.nav.helse.flex.kafka.AktorConsumer
+import no.nav.helse.flex.kafka.KafkaConfig
 import no.nav.helse.flex.repository.AktorRepository
 import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -58,7 +58,7 @@ abstract class FellesTestOppsett {
     lateinit var fakeUnleash: FakeUnleash
 
     @Autowired
-    lateinit var aivenAktorConsumer: AivenAktorConsumer
+    lateinit var aktorConsumer: AktorConsumer
 
     @AfterAll
     fun `Disable unleash toggles`() {
