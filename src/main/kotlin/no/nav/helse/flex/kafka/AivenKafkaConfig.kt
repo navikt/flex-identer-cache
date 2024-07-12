@@ -57,10 +57,12 @@ class AivenKafkaConfig(
     @Bean
     fun kafkaAvroListenerContainerFactory(
         consumerFactory: ConsumerFactory<String, GenericRecord>,
+        aivenKafkaErrorHandler: AivenKafkaErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
         factory.consumerFactory = consumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+        factory.setCommonErrorHandler(aivenKafkaErrorHandler)
         return factory
     }
 }
