@@ -2,9 +2,8 @@ package no.nav.helse.flex.kafka
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import org.apache.avro.generic.GenericRecord
+import no.nav.helse.flex.repository.Aktor
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
+import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
 
@@ -65,34 +65,21 @@ class AivenKafkaConfig(
         )
     }
 
-    //    @Profile("!test")
     @Bean
-    fun kafkaAvroListenerContainerFactory(
-        aivenSchemaRegistryClient: SchemaRegistryClient,
-        aivenKafkaErrorHandler: AivenKafkaErrorHandler,
-    ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
-        val genericAvroConsumerConfig =
-            commonConfig() +
-                mapOf(
-                    KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to kafkaSchemaRegistryUrl,
-                    KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
-                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to kafkaAutoOffsetReset,
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
-                    ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
-                )
+    fun consumerFactory(): ConsumerFactory<String, Aktor?> {
+        val props = HashMap<String, Any>()
+        props[ConsumerConfig.GROUP_ID_CONFIG] = "flex-identer-cache"
+        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+        props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
 
-        val consumerFactory =
-            DefaultKafkaConsumerFactory<String, GenericRecord>(
-                genericAvroConsumerConfig,
-            )
+        return DefaultKafkaConsumerFactory(props + commonConfig())
+    }
 
-        val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
-        factory.setCommonErrorHandler(aivenKafkaErrorHandler)
-        factory.consumerFactory = consumerFactory
+    @Bean
+    fun kafkaAvroListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Aktor?> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, Aktor?>()
+        factory.consumerFactory = consumerFactory()
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         return factory
     }
 }

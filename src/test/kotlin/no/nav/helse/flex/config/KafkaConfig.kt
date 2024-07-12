@@ -25,53 +25,16 @@ class KafkaConfig(
     @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
 ) {
     val log = logger()
-    private final val schemaString = """
-   {
-  "type": "record",
-  "name": "Aktor",
-  "namespace": "com.example",
-  "fields": [
-    {
-      "name": "aktorId",
-      "type": "string"
-    },
-    {
-      "name": "identifikatorer",
-      "type": {
-        "type": "array",
-        "items": {
-          "type": "record",
-          "name": "Identifikator",
-          "fields": [
-            {
-              "name": "idnummer",
-              "type": "string"
-            },
-            {
-              "name": "type",
-              "type": "string"
-            },
-            {
-              "name": "gjeldende",
-              "type": "boolean"
-            }
-          ]
-        }
-      }
-    }
-  ]
-}
-"""
 
     @Bean
     @Primary
     fun mockSchemaRegistryClient(): SchemaRegistryClient {
         val client = MockSchemaRegistryClient()
-        val schema: Schema = Schema.Parser().parse(schemaString)
+        val schema: Schema = Schema.Parser().parse(this::class.java.classLoader.getResourceAsStream("avro/aktor.avsc"))
         val avroSchema = AvroSchema(schema)
         val subject = "pdl.aktor-v2-value"
         client.register(subject, avroSchema)
-        log.info("Schema registered for subject: $subject with schema: $schemaString")
+        log.info("Schema registered for subject: $subject with schema: ${schema.toString(true)}")
         return client
     }
 
@@ -97,12 +60,11 @@ class KafkaConfig(
     }
 
     @Bean
-    fun kafkaProducerForTest(kafkaAvroSerializer: KafkaAvroSerializer): KafkaProducer<String, Any> {
-        // TODO set topic pdl.aktor-v2
+    fun kafkaProducerForTest(): KafkaProducer<String, String> {
         val configs =
             mapOf(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.ACKS_CONFIG to "all",
                 ProducerConfig.RETRIES_CONFIG to 10,
                 ProducerConfig.RETRY_BACKOFF_MS_CONFIG to 100,
@@ -114,7 +76,7 @@ class KafkaConfig(
         return KafkaProducer(
             configs,
             StringSerializer(),
-            kafkaAvroSerializer,
+            StringSerializer(),
         )
     }
 }

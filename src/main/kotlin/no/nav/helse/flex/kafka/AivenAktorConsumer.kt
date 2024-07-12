@@ -3,7 +3,11 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.toAktor
+import org.apache.avro.Schema
+import org.apache.avro.generic.GenericDatumReader
 import org.apache.avro.generic.GenericRecord
+import org.apache.avro.io.DecoderFactory
+import org.apache.avro.io.JsonDecoder
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -16,6 +20,11 @@ class AivenAktorConsumer(
 ) {
     val log = logger()
 
+    private val schema: Schema =
+        Schema.Parser().parse(
+            this::class.java.classLoader.getResourceAsStream("avro/aktor.avsc"),
+        )
+
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         id = "identer",
@@ -24,28 +33,38 @@ class AivenAktorConsumer(
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        cr: ConsumerRecord<String, GenericRecord>,
+        consumerRecord: ConsumerRecord<String, String>,
         acknowledgment: Acknowledgment,
     ) {
-        prosesserPersonhendelse(
-            // cr.value(),
-            // cr.timestamp(),
-            cr,
-        )
-
-        acknowledgment.acknowledge()
-    }
-
-    fun prosesserPersonhendelse(personhendelse: ConsumerRecord<String, GenericRecord>) {
         metrikk.personHendelseMottatt()
         log.info("motatt")
+        val message = consumerRecord.value()
+        if (message == null || message.isEmpty()) {
+            log.warn("Fikk tom melding. Hopper over prossessering")
+            acknowledgment.acknowledge()
+            return
+        }
 
-        handleAktor(personhendelse)
-    }
+        try {
+            val datumReader = GenericDatumReader<GenericRecord>(schema)
+            val decoder: JsonDecoder = DecoderFactory.get().jsonDecoder(schema, message)
+            val record = datumReader.read(null, decoder)
 
-    private fun handleAktor(it: ConsumerRecord<String, GenericRecord>) { // removed suspend here
-        val aktorId = it.key()
-        val aktor = it.value().toAktor(aktorId)
-        aktorService.lagreAktor(aktor)
+            val identifikatorer = record.get("identifikatorer") as List<*>
+            identifikatorer.forEach { identifikator ->
+                val idnummer = (identifikator as GenericRecord).get("idnummer").toString()
+                val type = identifikator.get("type").toString()
+                val gjeldende = identifikator.get("gjeldende") as Boolean
+
+                // TODO fjern før prod
+                log.info("Motokk melding: idnummer=$idnummer, type=$type, gjeldende=$gjeldende")
+            }
+            val aktorId = consumerRecord.key()
+            aktorService.lagreAktor(record.toAktor(aktorId))
+        } catch (e: Exception) {
+            log.error("Prossessering av melding feilet: ${e.message}")
+        } finally {
+            acknowledgment.acknowledge()
+        }
     }
 }

@@ -1,13 +1,9 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.kafka.AivenAktorConsumer
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.awaitility.Awaitility.await
 import java.time.Duration
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.TimeUnit
 
 fun <K, V> Consumer<K, V>.subscribeHvisIkkeSubscribed(vararg topics: String) {
     if (this.subscription().isEmpty()) {
@@ -21,7 +17,7 @@ fun <K, V> Consumer<K, V>.hentProduserteRecords(duration: Duration = Duration.of
     }.iterator().asSequence().toList()
 }
 
-fun <K, V> Consumer<K, V>.ventPåRecords(
+fun <K, V> Consumer<K, V>.ventPaRecords(
     antall: Int,
     duration: Duration = Duration.ofSeconds(9),
 ): List<ConsumerRecord<K, V>> {
@@ -42,28 +38,6 @@ fun <K, V> Consumer<K, V>.ventPåRecords(
     }.onFailure {
         println("Forventet $antall meldinger på kafka, mottok ${alle.size}")
         throw it
-    }
-
-    return alle
-}
-
-fun AivenAktorConsumer.ventPåRecords(
-    antall: Int,
-    duration: Duration = Duration.ofSeconds(9),
-): List<ConsumerRecord<String, GenericRecord>> {
-    val alle = ArrayList<ConsumerRecord<String, GenericRecord>>()
-    val deadline = System.currentTimeMillis() + duration.toMillis()
-    val buffer = ArrayBlockingQueue<ConsumerRecord<String, GenericRecord>>(1000)
-
-    while (System.currentTimeMillis() < deadline && alle.size < antall) {
-        val remainingTime = deadline - System.currentTimeMillis()
-        val record = buffer.poll(remainingTime, TimeUnit.MILLISECONDS)
-        record?.let { alle.add(it) }
-    }
-
-    if (alle.size != antall) {
-        log.error("Forventet $antall meldinger på kafka, mottok ${alle.size}")
-        throw RuntimeException("Expected $antall messages on Kafka, received ${alle.size}")
     }
 
     return alle
