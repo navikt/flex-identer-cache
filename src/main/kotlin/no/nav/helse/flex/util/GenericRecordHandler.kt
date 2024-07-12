@@ -32,31 +32,34 @@ fun GenericRecord.toIdentListe(): List<Identifikator> {
 }
 
 fun GenericRecord.toAktor(aktorId: String): Aktor {
-    val identifikatorerData = this.get("identifikatorer")
-
-    if (identifikatorerData !is GenericData.Array<*>) {
-        throw IllegalArgumentException("Feil data type for 'identifikatorer'")
+    val identifikatorer = this["identifikatorer"]
+    if (identifikatorer !is List<*>) {
+        throw IllegalStateException("Expected a list of identifikatorer, but got: $identifikatorer")
     }
 
-    val identifikatorer =
-        identifikatorerData.filterIsInstance<GenericRecord>().map { identifikator ->
-            val type =
-                when (val typeString = identifikator.get("type").toString()) {
-                    "FOLKEREGISTERIDENT" -> IdentType.FOLKEREGISTERIDENT
-                    "AKTORID" -> IdentType.AKTORID
-                    "NPID" -> IdentType.NPID
-                    else -> throw IllegalStateException("Mottok ident med ukjent type: $typeString")
-                }
-            Identifikator(
-                idnummer = identifikator.get("idnummer").toString(),
-                type = type.name,
-                gjeldende = identifikator.get("gjeldende").toString().toBoolean(),
-                oppdatert = OffsetDateTime.now(),
-            )
+    val parsetIdentifikatorer =
+        identifikatorer.map { identifikator ->
+            if (identifikator is GenericRecord) {
+                val typeString = identifikator["type"].toString()
+                val type =
+                    try {
+                        IdentType.valueOf(typeString)
+                    } catch (e: IllegalArgumentException) {
+                        throw IllegalStateException("Mottok ident med ukjent type: $typeString")
+                    }
+                Identifikator(
+                    idnummer = identifikator["idnummer"].toString(),
+                    type = type.name,
+                    gjeldende = identifikator["gjeldende"].toString().toBoolean(),
+                    oppdatert = OffsetDateTime.now(),
+                )
+            } else {
+                throw IllegalStateException("Feil data type for 'identifikatorer': $identifikatorer")
+            }
         }
 
     return Aktor(
         aktorId = aktorId,
-        identifikatorer = identifikatorer,
+        identifikatorer = parsetIdentifikatorer,
     )
 }
