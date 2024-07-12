@@ -5,13 +5,15 @@ import no.nav.helse.flex.kafka.ventPaRecords
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.IdentType
 import no.nav.helse.flex.repository.Identifikator
+import no.nav.helse.flex.util.tilOsloZone
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import java.time.Duration
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 class AktorTest : FellesTestOppsett() {
     @Autowired
@@ -36,8 +38,21 @@ class AktorTest : FellesTestOppsett() {
         kafkaProducerForTest.send(record)
         kafkaProducerForTest.flush()
 
-        val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1, Duration.ofSeconds(2)).first()
+        val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
         12345678234.toString() `should be equal to` aktorRecordFraKafka.identifikatorer.first().idnummer
+
+        // Sjekker at aktøren blir lagret i db
+        aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
+            aktorFraDb `should not be` null
+            aktorFraDb?.identifikatorer?.size `should be equal to` 1
+            aktorFraDb?.identifikatorer?.first().let {
+                it?.type `should be equal to` ident.type
+                it?.idnummer `should be equal to` ident.idnummer
+                it?.gjeldende `should be equal to` ident.gjeldende
+                it?.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS) `should be equal to`
+                    ident.oppdatert.tilOsloZone().truncatedTo(ChronoUnit.SECONDS)
+            }
+        }
     }
 
     @Test

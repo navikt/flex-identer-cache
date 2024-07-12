@@ -14,6 +14,8 @@ import java.time.OffsetDateTime
 @Transactional
 @Repository
 interface AktorRepository : CrudRepository<Aktor, String> {
+    fun findByAktorId(aktorId: String): Aktor?
+
     @Query("SELECT DISTINCT idnummer FROM identifikator")
     fun finnAlleDistinctIder(): Set<String>
 

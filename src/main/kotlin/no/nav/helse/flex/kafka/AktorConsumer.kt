@@ -33,7 +33,7 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v2",
+        id = "flex-aktor-dev-v3",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -63,7 +63,7 @@ class AktorConsumer(
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)
         } catch (e: Exception) {
-            log.error("Prossessering av melding feilet: ${e.message}. ${e.stackTrace}")
+            log.error("Prossessering av melding feilet: ${e.message}. ${e.stackTraceToString()}")
         } finally {
             acknowledgment.acknowledge()
         }
