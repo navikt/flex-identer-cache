@@ -33,7 +33,7 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v3",
+        id = "flex-aktor-dev-v4",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -43,7 +43,12 @@ class AktorConsumer(
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
-        log.info("mottok aktør med id ${consumerRecord.key()}")
+        val aktorId = consumerRecord.key().filter { it.isDigit() }
+        if (aktorId.isBlank()) {
+            log.error("Feil format på aktørId")
+            return
+        }
+        log.info("mottok aktør med id $aktorId")
 
         val message = consumerRecord.value()
         if (message == null) {
@@ -57,7 +62,6 @@ class AktorConsumer(
             val decoder: BinaryDecoder = DecoderFactory.get().binaryDecoder(message, null)
             val record = datumReader.read(null, decoder)
 
-            val aktorId = consumerRecord.key()
             val aktor = record.toAktor(aktorId)
             log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)

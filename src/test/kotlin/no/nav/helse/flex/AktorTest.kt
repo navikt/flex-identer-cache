@@ -30,7 +30,8 @@ class AktorTest : FellesTestOppsett() {
             )
         val aktor =
             Aktor(
-                aktorId = "1345676",
+                // Feilformatert string for å sjekke validering
+                aktorId = "\"\u001A2415069080036",
                 identifikatorer = listOf(ident),
             )
 
@@ -39,7 +40,7 @@ class AktorTest : FellesTestOppsett() {
         kafkaProducerForTest.flush()
 
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
-        12345678234.toString() `should be equal to` aktorRecordFraKafka.identifikatorer.first().idnummer
+        aktorRecordFraKafka.aktorId `should be equal to` 2415069080036.toString()
 
         // Sjekker at aktøren blir lagret i db
         aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
