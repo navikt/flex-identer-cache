@@ -3,6 +3,7 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.util.Metrikk
+import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.toAktor
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericDatumReader
@@ -31,7 +32,8 @@ class AktorConsumer(
 
     @KafkaListener(
         topics = [AKTOR_TOPIC],
-        id = "flex-aktor-v1",
+        // TODO endre ved prodsetting
+        id = "flex-aktor-dev-v2",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -41,7 +43,7 @@ class AktorConsumer(
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
-        log.info("motatt")
+        log.info("mottok aktør med id ${consumerRecord.key()}")
 
         val message = consumerRecord.value()
         if (message == null) {
@@ -55,21 +57,13 @@ class AktorConsumer(
             val decoder: BinaryDecoder = DecoderFactory.get().binaryDecoder(message, null)
             val record = datumReader.read(null, decoder)
 
-            val identifikatorer = record.get("identifikatorer") as List<*>
-            identifikatorer.forEach { identifikator ->
-                val idnummer = (identifikator as GenericRecord).get("idnummer").toString()
-                val type = identifikator.get("type").toString()
-                val gjeldende = identifikator.get("gjeldende") as Boolean
-
-                // TODO fjern før prod
-                log.info("Motokk melding: idnummer=$idnummer, type=$type, gjeldende=$gjeldende")
-            }
             val aktorId = consumerRecord.key()
             val aktor = record.toAktor(aktorId)
+            log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)
         } catch (e: Exception) {
-            log.error("Prossessering av melding feilet: ${e.message}")
+            log.error("Prossessering av melding feilet: ${e.message}. ${e.stackTrace}")
         } finally {
             acknowledgment.acknowledge()
         }
