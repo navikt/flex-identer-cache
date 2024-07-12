@@ -21,6 +21,8 @@ spring:
       max-poll-records: 1
       auto-offset-reset: none
       enable-auto-commit: false
+    properties:
+      schema.registry.url: http://localhost:8081
 
 management:
   endpoint:

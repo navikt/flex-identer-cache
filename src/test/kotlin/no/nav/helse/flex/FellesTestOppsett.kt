@@ -47,7 +47,7 @@ abstract class FellesTestOppsett {
     lateinit var aktorService: AktorService
 
     @Autowired
-    lateinit var kafkaProducerForTest: KafkaProducer<String, Any>
+    lateinit var kafkaProducerForTest: KafkaProducer<String, String>
 
     @AfterAll
     fun `Vi resetter databasen`() {

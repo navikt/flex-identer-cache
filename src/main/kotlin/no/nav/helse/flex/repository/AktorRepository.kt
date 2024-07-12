@@ -1,5 +1,6 @@
 package no.nav.helse.flex.repository
 
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
 import org.apache.avro.reflect.ReflectData
@@ -86,6 +87,12 @@ data class Aktor(
         record.put("identifikatorer", identifikatorRecords)
 
         return record
+    }
+
+    companion object {
+        fun lagFraString(aktorString: String): Aktor {
+            return OBJECT_MAPPER.readValue(aktorString, Aktor::class.java)
+        }
     }
 }
 
