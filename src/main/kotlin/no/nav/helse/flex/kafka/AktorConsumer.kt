@@ -33,7 +33,7 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v4",
+        id = "flex-aktor-dev-v5",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -56,6 +56,7 @@ class AktorConsumer(
             acknowledgment.acknowledge()
             return
         }
+        log.info("Mottok kafka melding: ${message.decodeToString()}")
 
         try {
             val datumReader = GenericDatumReader<GenericRecord>(schema)
