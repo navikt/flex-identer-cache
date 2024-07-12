@@ -1,9 +1,5 @@
 package no.nav.helse.flex.repository
 
-import no.nav.helse.flex.util.OBJECT_MAPPER
-import org.apache.avro.generic.GenericData
-import org.apache.avro.generic.GenericRecord
-import org.apache.avro.reflect.ReflectData
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
@@ -62,39 +58,7 @@ data class Aktor(
     var aktorId: String,
     @MappedCollection(idColumn = "aktor_id", keyColumn = "aktor_id")
     var identifikatorer: List<Identifikator> = mutableListOf(),
-) {
-    fun tilGenericRecord(): GenericRecord {
-        val schema = ReflectData.get().getSchema(Aktor::class.java)
-        val record = GenericData.Record(schema)
-
-        // Setting aktorId
-        record.put("aktorId", aktorId)
-
-        // Creating schema for Identifikator
-        val identifikatorSchema = schema.getField("identifikatorer").schema().elementType
-
-        // Creating records for identifikatorer
-        val identifikatorRecords =
-            identifikatorer.map { identifikator ->
-                val identifikatorRecord = GenericData.Record(identifikatorSchema)
-                identifikatorRecord.put("idnummer", identifikator.idnummer)
-                identifikatorRecord.put("type", identifikator.type)
-                identifikatorRecord.put("gjeldende", identifikator.gjeldende)
-                identifikatorRecord
-            }
-
-        // Setting identifikatorer
-        record.put("identifikatorer", identifikatorRecords)
-
-        return record
-    }
-
-    companion object {
-        fun lagFraString(aktorString: String): Aktor {
-            return OBJECT_MAPPER.readValue(aktorString, Aktor::class.java)
-        }
-    }
-}
+)
 
 @Table("identifikator")
 data class Identifikator(
