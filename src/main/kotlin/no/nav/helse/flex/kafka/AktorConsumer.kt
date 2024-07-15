@@ -2,10 +2,11 @@ package no.nav.helse.flex.kafka
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.AktorService
-import no.nav.helse.flex.repository.deserialiserTilAktor
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.util.toIdentListe
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -24,21 +25,24 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v7",
+        id = "flex-aktor-dev-v8",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        consumerRecord: ConsumerRecord<String, ByteArray>,
+        consumerRecord: ConsumerRecord<String, GenericRecord>,
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
         log.info("Mottok kafka melding: $consumerRecord")
+        log.info("identer ${consumerRecord.value().toIdentListe().serialisertTilString()}")
 
         try {
-            val aktor = consumerRecord.value().deserialiserTilAktor()
-            aktor.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+            val aktorId = consumerRecord.key()
+            val identifikatorer = consumerRecord.value().toIdentListe()
+            identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+            val aktor = Aktor(aktorId).also { it.identifikatorer = identifikatorer }
             log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)
