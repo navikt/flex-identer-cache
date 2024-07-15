@@ -6,6 +6,7 @@ memory: 600Mi
 db_tier: db-custom-1-3840
 db_highAvailability: true
 db_pointInTimeRecovery: true
+schema_registry_url: kafka-schema-registry.nais.adeo.no
 env:
   SPRING_PROFILES_ACTIVE: default
   SKRIVEMODUS: READWRITE
