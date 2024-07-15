@@ -1,6 +1,5 @@
 package no.nav.helse.flex.kafka
 
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -46,7 +45,7 @@ class AivenKafkaConfig(
         )
 
     @Bean
-    fun consumerFactory(): ConsumerFactory<String, GenericRecord> {
+    fun consumerFactory(): ConsumerFactory<String, ByteArray> {
         val props = HashMap<String, Any>()
         props[ConsumerConfig.GROUP_ID_CONFIG] = "flex-identer-cache"
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
@@ -57,10 +56,10 @@ class AivenKafkaConfig(
 
     @Bean
     fun kafkaAvroListenerContainerFactory(
-        consumerFactory: ConsumerFactory<String, GenericRecord>,
+        consumerFactory: ConsumerFactory<String, ByteArray>,
         aivenKafkaErrorHandler: AivenKafkaErrorHandler,
-    ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
-        val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
+    ): ConcurrentKafkaListenerContainerFactory<String, ByteArray> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, ByteArray>()
         factory.consumerFactory = consumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         factory.setCommonErrorHandler(aivenKafkaErrorHandler)

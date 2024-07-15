@@ -7,6 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     kotlin("jvm") version "2.0.10"
     kotlin("plugin.spring") version "2.0.10"
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 group = "no.nav.helse.flex"
@@ -42,33 +43,59 @@ val springdocOpenapiVersion = "2.5.0"
 val mockitoKotlinVersion = "2.2.0"
 
 dependencies {
+    // Kotlin dependencies
+    implementation(kotlin("reflect"))
+    implementation(kotlin("stdlib"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+
+    // Avro dependencies
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
+    implementation("org.apache.avro:avro:$avroVersion")
+
+    // Serialization dependencies
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3")
+
+    // Jackson dependencies
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Confluent Kafka dependencies
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
+
+    // Unleash dependencies
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
+
+    // Micrometer dependencies
     implementation("io.micrometer:micrometer-registry-prometheus")
+
+    // Logstash dependencies
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+
+    // NAV dependencies
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("org.hibernate.validator:hibernate-validator")
+
+    // PostgreSQL dependencies
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+
+    // Springdoc OpenAPI dependencies
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiVersion")
+
+    // Spring Boot dependencies
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation(kotlin("reflect"))
-    implementation(kotlin("stdlib"))
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
+    // Test dependencies
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("org.awaitility:awaitility")
@@ -77,15 +104,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
-
-    // copy pasted fra sykepengesoknad-backend
-//    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
-//    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
-//    implementation("org.apache.avro:avro:$avroVersion")
-//    implementation("org.springframework.kafka:spring-kafka")
-//    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
-//    implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
-//    implementation("io.getunleash:unleash-client-java:$unleashVersion")
 }
 
 kotlin {

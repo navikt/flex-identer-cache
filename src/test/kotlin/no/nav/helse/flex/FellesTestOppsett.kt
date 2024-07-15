@@ -47,7 +47,7 @@ abstract class FellesTestOppsett {
     lateinit var aktorService: AktorService
 
     @Autowired
-    lateinit var kafkaProducerForTest: KafkaProducer<String, String>
+    lateinit var kafkaProducerForTest: KafkaProducer<String, ByteArray>
 
     @AfterAll
     fun `Vi resetter databasen`() {
@@ -86,7 +86,6 @@ abstract class FellesTestOppsett {
                     start()
                     System.setProperty("KAFKA_BROKERS", bootstrapServers)
                     System.setProperty("AIVEN_DOKUMENT_TOPIC", "test-topic")
-                    System.setProperty("KAFKA_SCHEMA_REGISTRY", "mock://localhost.nav")
                 }
             }.also { threads.add(it) }
 
