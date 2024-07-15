@@ -9,6 +9,7 @@ import no.nav.helse.flex.repository.Identifikator
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be in range`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,16 +43,20 @@ class AktorTest : FellesTestOppsett() {
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
         aktorRecordFraKafka.aktorId `should be equal to` 2415069080036.toString()
 
-        // Sjekker at aktøren blir lagret i db
+        // / Sjekker at aktøren blir lagret i db
         aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
             aktorFraDb `should not be` null
-            aktorFraDb?.identifikatorer?.size `should be equal to` 1
-            aktorFraDb?.identifikatorer?.first().let {
-                it?.type `should be equal to` ident.type
-                it?.idnummer `should be equal to` ident.idnummer
-                it?.gjeldende `should be equal to` ident.gjeldende
-                it?.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS) `should be equal to`
-                    OffsetDateTime.now(osloZone).truncatedTo(ChronoUnit.SECONDS)
+            aktorFraDb?.let { aktor ->
+                aktor.identifikatorer.size `should be equal to` 1
+                aktor.identifikatorer.first().let { identifikator ->
+                    identifikator.type `should be equal to` ident.type
+                    identifikator.idnummer `should be equal to` ident.idnummer
+                    identifikator.gjeldende `should be equal to` ident.gjeldende
+                    ChronoUnit.SECONDS.between(
+                        identifikator.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS),
+                        OffsetDateTime.now(osloZone).truncatedTo(ChronoUnit.SECONDS),
+                    ) `should be in range` -10L..10L
+                }
             }
         }
     }

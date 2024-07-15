@@ -80,7 +80,7 @@ data class Aktor(
         val schema = Avro.default.schema(serializer())
         val output =
             Avro.default.openOutputStream(serializer()) {
-                encodeFormat = AvroEncodeFormat.Binary
+                encodeFormat = AvroEncodeFormat.Json
                 this.schema = schema
             }.to(byteArrayOutputStream)
         output.write(this)
@@ -94,7 +94,7 @@ fun ByteArray.deserialiserTilAktor(): Aktor {
     val schema = Avro.default.schema(Aktor.serializer())
     val input =
         Avro.default.openInputStream(Aktor.serializer()) {
-            decodeFormat = AvroDecodeFormat.Binary(schema, schema)
+            decodeFormat = AvroDecodeFormat.Json(schema, schema)
         }.from(byteArrayInputStream)
     return input.nextOrThrow()
 }
