@@ -1,26 +1,20 @@
-#spring:
-#  main.banner-mode: 'off'
-#  profiles:
-#    active: test
-#  flyway:
-#    enabled: true
-#  datasource:
-#    url: "${DATABASE_JDBC_URL}"
-#    hikari:
-#      minimum-idle: 1
-#      maximum-pool-size: 3
 spring:
-  profiles.active: test,cronjobber,sykmeldinger
+  profiles.active: test,cronjobber
   main.banner-mode: 'off'
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
     consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
-      auto-offset-reset: none
+      auto-offset-reset: earliest
       enable-auto-commit: false
+    ssl:
+      trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
+      trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+      truststore-type: JKS
+      key-store-location: file:${KAFKA_KEYSTORE_PATH}
+      key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+      keystore-type: PKCS12
   cache.type: redis
 
 management:
@@ -45,26 +39,15 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
       accepted_audience: flex-identer-cache-client-id
 
-
 AZURE_APP_PRE_AUTHORIZED_APPS: "[]"
 #{\"name\":\"dev-gcp:flex:sykepengesoknad-arkivering-oppgave\",\"clientId\":\"sykepengesoknad-arkivering-oppgave-client-id\"},{\"name\":\"dev-gcp:flex:flex-syketilfelle\",\"clientId\":\"flex-syketilfelle-client-id\"},{\"name\":\"dev-gcp:flex:flex-sykepengesoknad-backend\",\"clientId\":\"flex-sykepengesoknad-backend-client-id\"}
 
-KAFKA_TRUSTSTORE_PATH: ""
-KAFKA_CREDSTORE_PASSWORD: ""
-KAFKA_SECURITY_PROTOCOL: "PLAINTEXT"
-KAFKA_KEYSTORE_PATH: ""
-KAFKA_SCHEMA_REGISTRY: "url"
-KAFKA_SCHEMA_REGISTRY_USER: "user"
-KAFKA_SCHEMA_REGISTRY_PASSWORD: "pass"
-
-nais:
-  app:
-    name: "sykepengesoknad-backend"
-    image: "sykepengesoknad-backend-test-12432536"
-
 elector.path: dont_look_for_leader
 
-aiven-kafka:
-  auto-offset-reset: earliest
-
 SKRIVEMODUS: READWRITE
+
+#Blir satt i nais:
+SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+KAFKA_BROKERS: ${KAFKA_BROKERS}
+KAFKA_SCHEMA_REGISTRY_USER: usr
+KAFKA_SCHEMA_REGISTRY_PASSWORD: pwd

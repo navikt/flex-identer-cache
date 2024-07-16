@@ -1,6 +1,7 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
+import no.nav.helse.flex.kafka.AKTOR_TOPIC
 import no.nav.helse.flex.kafka.AktorConsumer
 import no.nav.helse.flex.kafka.KafkaConfig
 import no.nav.helse.flex.kafka.uploadSchema
@@ -93,7 +94,6 @@ abstract class FellesTestOppsett {
                         withNetwork(network)
                         start()
                         System.setProperty("KAFKA_BROKERS", bootstrapServers)
-                        System.setProperty("AIVEN_DOKUMENT_TOPIC", "test-topic")
                     }
 
                 GenericContainer(DockerImageName.parse("confluentinc/cp-schema-registry:7.5.3")).apply {
@@ -108,7 +108,7 @@ abstract class FellesTestOppsett {
 
                     // Upload the schema
                     val schemaRegistryUrl = System.getProperty("SCHEMA_REGISTRY_URL")
-                    uploadSchema(schemaRegistryUrl, "pdl.aktor-v2", "avro/aktor.avsc")
+                    uploadSchema(schemaRegistryUrl, AKTOR_TOPIC, "avro/aktor.avsc")
                 }
             }.also { threads.add(it) }
 
