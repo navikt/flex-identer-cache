@@ -15,14 +15,17 @@ spring:
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
     consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
-      auto-offset-reset: none
+      auto-offset-reset: earliest
       enable-auto-commit: false
-    properties:
-      schema.registry.url: http://localhost:8081
+    ssl:
+      trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
+      trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+      truststore-type: JKS
+      key-store-location: file:${KAFKA_KEYSTORE_PATH}
+      key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+      keystore-type: PKCS12
 
 management:
   endpoint:
@@ -48,6 +51,6 @@ no.nav.security.jwt:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
 
-
-aiven-kafka:
-  auto-offset-reset: none
+#Blir satt i nais:
+SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+KAFKA_BROKERS: ${KAFKA_BROKERS}

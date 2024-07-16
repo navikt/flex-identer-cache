@@ -58,9 +58,6 @@ spec:
   kafka:
     pool: {{kafkaPool}}
   accessPolicy:
-    outbound:
-      external:
-        - host: {{schema_registry_url}}
     inbound:
       rules:
         - application: sykepengesoknad
