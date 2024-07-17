@@ -18,7 +18,7 @@ import org.springframework.kafka.listener.ContainerProperties
 @Configuration
 class AivenKafkaConfig(
     @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
-    @Value("\${SCHEMA_REGISTRY_URL}") private val schemaRegistryUrl: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val schemaRegistryUrl: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
 ) {
@@ -59,4 +59,4 @@ class AivenKafkaConfig(
     }
 }
 
-const val AKTOR_TOPIC = "pdl." + "aktor-v2"
+const val AKTOR_TOPIC = "pdl.aktor-v2"

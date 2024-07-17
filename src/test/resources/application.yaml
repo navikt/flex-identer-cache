@@ -8,6 +8,8 @@ spring:
       max-poll-records: 1
       auto-offset-reset: earliest
       enable-auto-commit: false
+      security:
+        protocol: SSL
     ssl:
       trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
       trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
@@ -47,7 +49,7 @@ elector.path: dont_look_for_leader
 SKRIVEMODUS: READWRITE
 
 #Blir satt i nais:
-SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
 KAFKA_BROKERS: ${KAFKA_BROKERS}
 KAFKA_SCHEMA_REGISTRY_USER: usr
 KAFKA_SCHEMA_REGISTRY_PASSWORD: pwd

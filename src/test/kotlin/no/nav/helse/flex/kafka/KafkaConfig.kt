@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class KafkaConfig(
     @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
-    @Value("\${SCHEMA_REGISTRY_URL}") private val schemaRegistryUrl: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val schemaRegistryUrl: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
 ) {
