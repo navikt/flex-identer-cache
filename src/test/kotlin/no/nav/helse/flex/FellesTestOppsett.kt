@@ -104,10 +104,10 @@ abstract class FellesTestOppsett {
                     withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", "PLAINTEXT://${kafkaContainer.networkAliases[0]}:9092")
                     start()
                     waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
-                    System.setProperty("SCHEMA_REGISTRY_URL", "http://$host:${getMappedPort(8081)}")
+                    System.setProperty("KAFKA_SCHEMA_REGISTRY", "http://$host:${getMappedPort(8081)}")
 
                     // Upload the schema
-                    val schemaRegistryUrl = System.getProperty("SCHEMA_REGISTRY_URL")
+                    val schemaRegistryUrl = System.getProperty("KAFKA_SCHEMA_REGISTRY")
                     uploadSchema(schemaRegistryUrl, AKTOR_TOPIC, "avro/aktor.avsc")
                 }
             }.also { threads.add(it) }
