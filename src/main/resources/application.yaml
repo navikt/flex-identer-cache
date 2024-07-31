@@ -30,6 +30,12 @@ spring:
           type: JKS
           location: ${KAFKA_TRUSTSTORE_PATH}
           password: ${KAFKA_CREDSTORE_PASSWORD}
+    listener:
+      concurrency: 1
+      poll-timeout: 1000
+      no-poll-threshold: 360
+      ack-mode: batch
+      type: batch
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
