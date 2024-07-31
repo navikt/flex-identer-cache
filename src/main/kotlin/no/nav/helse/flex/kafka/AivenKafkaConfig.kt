@@ -3,9 +3,7 @@ package no.nav.helse.flex.kafka
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -17,24 +15,15 @@ import org.springframework.kafka.listener.ContainerProperties
 
 @Configuration
 class AivenKafkaConfig(
-    @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val schemaRegistryUrl: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
+    @Value("\${spring.kafka.bootstrap-servers}") private val kafkaBrokers: String,
+    @Value("\${spring.kafka.properties.schema.registry.url}") private val schemaRegistryUrl: String,
 ) {
-    fun commonConfig() =
-        mapOf(
-            BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
-            // Disables server host name verification.
-            SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG to "",
-            KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
-        )
-
     @Bean
     fun consumerFactory(): ConsumerFactory<String, GenericRecord> {
         val props =
             HashMap<String, Any>(
                 mapOf(
+                    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
                     ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
@@ -43,7 +32,7 @@ class AivenKafkaConfig(
                 ),
             )
 
-        return DefaultKafkaConsumerFactory(props + commonConfig())
+        return DefaultKafkaConsumerFactory(props)
     }
 
     @Bean
