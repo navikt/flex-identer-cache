@@ -3,13 +3,13 @@ spring:
   main.banner-mode: 'off'
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
+    security:
+      protocol: SSL
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
       auto-offset-reset: earliest
       enable-auto-commit: false
-      security:
-        protocol: SSL
     ssl:
       trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
       trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
@@ -50,6 +50,6 @@ SKRIVEMODUS: READWRITE
 
 #Blir satt i nais:
 KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
-KAFKA_BROKERS: ${KAFKA_BROKERS}
+#KAFKA_BROKERS: ${KAFKA_BROKERS} #settes i testcontainers
 KAFKA_SCHEMA_REGISTRY_USER: usr
 KAFKA_SCHEMA_REGISTRY_PASSWORD: pwd

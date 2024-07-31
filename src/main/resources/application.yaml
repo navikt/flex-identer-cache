@@ -14,13 +14,13 @@ spring:
       maximum-pool-size: 5
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
+    security:
+      protocol: SSL
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
       auto-offset-reset: earliest
       enable-auto-commit: false
-      security:
-        protocol: SSL
     ssl:
       trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
       trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
