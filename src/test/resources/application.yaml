@@ -1,4 +1,5 @@
 spring:
+  cache.type: redis
   profiles.active: test,cronjobber
   main.banner-mode: 'off'
   kafka:
