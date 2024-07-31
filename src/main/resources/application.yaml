@@ -14,20 +14,27 @@ spring:
       maximum-pool-size: 5
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
-    security:
-      protocol: SSL
+    bootstrap-servers: ${KAFKA_BROKERS}
+    properties:
+      schema.registry.url: ${KAFKA_SCHEMA_REGISTRY}
+      basic.auth.credentials.source: USER_INFO
+      schema.registry.basic.auth.user.info: ${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}
+      security:
+        protocol: SSL
+      ssl:
+        keystore:
+          type: PKCS12
+          location: ${KAFKA_KEYSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
+        truststore:
+          type: JKS
+          location: ${KAFKA_TRUSTSTORE_PATH}
+          password: ${KAFKA_CREDSTORE_PASSWORD}
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
       auto-offset-reset: earliest
       enable-auto-commit: false
-    ssl:
-      trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
-      trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-      truststore-type: JKS
-      key-store-location: file:${KAFKA_KEYSTORE_PATH}
-      key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-      keystore-type: PKCS12
 
 management:
   endpoint:
@@ -52,7 +59,3 @@ no.nav.security.jwt:
     tokenx:
       discoveryurl: ${TOKEN_X_WELL_KNOWN_URL}
       accepted_audience: ${TOKEN_X_CLIENT_ID}
-
-#Blir satt i nais:
-KAFKA_SCHEMA_REGISTRY: ${KAFKA_SCHEMA_REGISTRY}
-KAFKA_BROKERS: ${KAFKA_BROKERS}
