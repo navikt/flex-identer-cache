@@ -23,12 +23,13 @@ spring:
       security:
         protocol: SSL
       ssl:
+        endpoint.identification.algorithm: ""
         keystore:
           type: PKCS12
           location: ${KAFKA_KEYSTORE_PATH}
           password: ${KAFKA_CREDSTORE_PASSWORD}
         truststore:
-          type: PKCS12
+          type: JKS
           location: ${KAFKA_TRUSTSTORE_PATH}
           password: ${KAFKA_CREDSTORE_PASSWORD}
     listener:
