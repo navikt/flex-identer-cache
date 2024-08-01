@@ -4,20 +4,6 @@ spring:
   main.banner-mode: 'off'
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
-    bootstrap-servers: ${KAFKA_BROKERS}
-    properties:
-      schema.registry.url: ${KAFKA_SCHEMA_REGISTRY}
-      basic.auth.credentials.source: USER_INFO
-      schema.registry.basic.auth.user.info: usr:pwd
-      security:
-        protocol: PLAINTEXT
-      ssl:
-        trust-store-location: file:""
-        trust-store-password: ""
-        truststore-type: JKS
-        key-store-location: file:""
-        key-store-password: ""
-        keystore-type: PKCS12
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1
@@ -52,3 +38,11 @@ AZURE_APP_PRE_AUTHORIZED_APPS: "[]"
 elector.path: dont_look_for_leader
 
 SKRIVEMODUS: READWRITE
+
+#Settes av nais i prod
+KAFKA_TRUSTSTORE_PATH: ""
+KAFKA_CREDSTORE_PASSWORD: ""
+KAFKA_SECURITY_PROTOCOL: "PLAINTEXT"
+KAFKA_KEYSTORE_PATH: ""
+KAFKA_SCHEMA_REGISTRY_USER: "user"
+KAFKA_SCHEMA_REGISTRY_PASSWORD: "pass"
