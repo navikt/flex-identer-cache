@@ -14,9 +14,10 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class KafkaConfig(
-    @Value("\${spring.kafka.bootstrap-servers}") private val kafkaBrokers: String,
-    @Value("\${spring.kafka.properties.schema.registry.url}") private val schemaRegistryUrl: String,
-    @Value("\${spring.kafka.properties.schema.registry.basic.auth.user.info}") private val kafkaUserInfo: String,
+    @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val schemaRegistryUrl: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
 ) {
     val log = logger()
 
@@ -32,7 +33,7 @@ class KafkaConfig(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
                 SaslConfigs.SASL_MECHANISM to "PLAIN",
                 KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
-                KafkaAvroSerializerConfig.USER_INFO_CONFIG to kafkaUserInfo,
+                KafkaAvroSerializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
             )
         log.info("Kafka Producer Config: $configs")
 

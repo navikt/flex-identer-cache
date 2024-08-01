@@ -93,7 +93,7 @@ abstract class FellesTestOppsett {
                     KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3")).apply {
                         withNetwork(network)
                         start()
-                        System.setProperty("spring.kafka.bootstrap-servers", bootstrapServers)
+                        System.setProperty("KAFKA_BROKERS", bootstrapServers)
                     }
 
                 GenericContainer(DockerImageName.parse("confluentinc/cp-schema-registry:7.5.3")).apply {
@@ -104,7 +104,7 @@ abstract class FellesTestOppsett {
                     withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", "PLAINTEXT://${kafkaContainer.networkAliases[0]}:9092")
                     start()
                     waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
-                    System.setProperty("spring.kafka.properties.schema.registry.url", "http://$host:${getMappedPort(8081)}")
+                    System.setProperty("KAFKA_SCHEMA_REGISTRY", "http://$host:${getMappedPort(8081)}")
 
                     // Upload the schema
                     val schemaRegistryUrl = System.getProperty("spring.kafka.properties.schema-registry-url")
