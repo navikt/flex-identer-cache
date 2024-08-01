@@ -31,3 +31,8 @@ fun KafkaProducer<String, GenericRecord>.sendAktor(
     aktorRecord.put("identifikatorer", identifikatorRecords)
     this.send(ProducerRecord(topic, aktor.aktorId, aktorRecord))
 }
+
+fun KafkaProducer<String, GenericRecord>.sendMalformedRecord(topic: String) {
+    val malformedRecord: GenericRecord = GenericData.Record(Schema.create(Schema.Type.STRING))
+    this.send(ProducerRecord(topic, "malformed-key", malformedRecord))
+}
