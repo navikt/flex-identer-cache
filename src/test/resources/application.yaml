@@ -9,15 +9,15 @@ spring:
       schema.registry.url: ${KAFKA_SCHEMA_REGISTRY}
       basic.auth.credentials.source: USER_INFO
       schema.registry.basic.auth.user.info: usr:pwd
-#      security:
-#        protocol: SSL
-#      ssl:
-#        trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
-#        trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-#        truststore-type: JKS
-#        key-store-location: file:${KAFKA_KEYSTORE_PATH}
-#        key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-#        keystore-type: PKCS12
+      security:
+        protocol: PLAINTEXT
+      ssl:
+        trust-store-location: file:""
+        trust-store-password: ""
+        truststore-type: JKS
+        key-store-location: file:""
+        key-store-password: ""
+        keystore-type: PKCS12
     consumer:
       group-id: ${nais.app.name}-${fasit.environment.name}
       max-poll-records: 1

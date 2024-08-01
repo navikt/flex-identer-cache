@@ -20,15 +20,15 @@ spring:
       schema.registry.url: ${KAFKA_SCHEMA_REGISTRY}
       basic.auth.credentials.source: USER_INFO
       schema.registry.basic.auth.user.info: ${KAFKA_SCHEMA_REGISTRY_USER}:${KAFKA_SCHEMA_REGISTRY_PASSWORD}
-#      security:
-#        protocol: SSL
-#      ssl:
-#        trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
-#        trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-#        truststore-type: JKS
-#        key-store-location: file:${KAFKA_KEYSTORE_PATH}
-#        key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
-#        keystore-type: PKCS12
+      security:
+        protocol: PLAINTEXT
+      ssl:
+        trust-store-location: file:${KAFKA_TRUSTSTORE_PATH}
+        trust-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+        truststore-type: JKS
+        key-store-location: file:${KAFKA_KEYSTORE_PATH}
+        key-store-password: ${KAFKA_CREDSTORE_PASSWORD}
+        keystore-type: PKCS12
     listener:
       concurrency: 1
       poll-timeout: 1000
