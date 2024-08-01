@@ -9,4 +9,4 @@ db_pointInTimeRecovery: true
 env:
   SPRING_PROFILES_ACTIVE: default
   SKRIVEMODUS: READWRITE
-  KAFKA_SCHEMA_REGISTRY: kafka-schema-registry.nais.adeo.no
+  KAFKA_SCHEMA_REGISTRY: https://kafka-schema-registry.nais.adeo.no

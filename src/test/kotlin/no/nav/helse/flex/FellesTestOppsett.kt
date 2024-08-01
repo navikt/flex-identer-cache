@@ -104,7 +104,10 @@ abstract class FellesTestOppsett {
                     withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", "PLAINTEXT://${kafkaContainer.networkAliases[0]}:9092")
                     start()
                     waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
-                    System.setProperty("KAFKA_SCHEMA_REGISTRY", "http://$host:${getMappedPort(8081)}")
+                    System.setProperty(
+                        "KAFKA_SCHEMA_REGISTRY",
+                        "http://$host:${getMappedPort(8081)}",
+                    ) // TODO: sett opp mock for å støtte SSL i tester (https)
 
                     // Upload the schema
                     val schemaRegistryUrl = System.getProperty("spring.kafka.properties.schema-registry-url")
