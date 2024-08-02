@@ -33,7 +33,7 @@ class AktorTest : FellesTestOppsett() {
             )
         val aktor =
             Aktor(
-                aktorId = "2415069080036",
+                aktorId = "\"2286257412903",
                 identifikatorer = listOf(ident),
             )
 
@@ -41,7 +41,7 @@ class AktorTest : FellesTestOppsett() {
         kafkaProducerForTest.flush()
 
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
-        aktorRecordFraKafka.aktorId `should be equal to` 2415069080036.toString()
+        aktorRecordFraKafka.aktorId `should be equal to` 2286257412903.toString()
 
         // / Sjekker at aktøren blir lagret i db
         aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
