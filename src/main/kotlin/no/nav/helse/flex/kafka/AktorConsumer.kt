@@ -29,7 +29,7 @@ class AktorConsumer(
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
-    fun listenByteArray(
+    fun listen(
         consumerRecord: ConsumerRecord<String, ByteArray>,
         acknowledgment: Acknowledgment,
     ) {
@@ -39,7 +39,10 @@ class AktorConsumer(
         try {
             val aktor =
                 consumerRecord.value().deserialiserTilAktor()
-                    .also { it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) } }
+                    .also {
+                        it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+                        it.aktorId = sanitizeKey(consumerRecord.key())
+                    }
             log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)
@@ -48,5 +51,18 @@ class AktorConsumer(
         } finally {
             acknowledgment.acknowledge()
         }
+    }
+
+    fun sanitizeKey(key: String): String {
+        // strips off all non-ASCII characters
+        var text = key
+        text = text.replace("[^\\x00-\\x7F]".toRegex(), "")
+
+        // erases all the ASCII control characters
+        text = text.replace("\\p{Cntrl}&&[^\r\n\t]".toRegex(), "")
+
+        // removes non-printable characters from Unicode
+        text = text.replace("\\p{C}".toRegex(), "")
+        return text.trim().filter { it.isDigit() }
     }
 }
