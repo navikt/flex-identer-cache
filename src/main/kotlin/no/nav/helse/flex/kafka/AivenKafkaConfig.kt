@@ -15,7 +15,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 
 @Configuration
 class AivenKafkaConfig(
@@ -57,10 +56,8 @@ class AivenKafkaConfig(
                 mapOf(
                     ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
                     ConsumerConfig.GROUP_ID_CONFIG to "flex-aktor-dev-v13",
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
-                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to KafkaAvroDeserializer::class.java.name,
-                    ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS to StringDeserializer::class.java.name,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java.name,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                     KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
