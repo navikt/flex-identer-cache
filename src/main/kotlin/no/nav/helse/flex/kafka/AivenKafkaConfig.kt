@@ -2,6 +2,7 @@ package no.nav.helse.flex.kafka
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import no.nav.helse.flex.logger
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -27,6 +28,8 @@ class AivenKafkaConfig(
     @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
     @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
+    val log = logger()
+
     fun commonConfig() =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
@@ -48,18 +51,24 @@ class AivenKafkaConfig(
 
     @Bean
     fun consumerFactory(): ConsumerFactory<String, GenericRecord> {
+        log.info("Oppretter consumer config")
         val props =
             HashMap<String, Any>(
                 mapOf(
-                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
+                    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
+                    ConsumerConfig.GROUP_ID_CONFIG to "flex-aktor-dev-v13",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
-                    KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    KafkaAvroDeserializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE to "USER_INFO",
+                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to KafkaAvroDeserializer::class.java.name,
+                    ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS to StringDeserializer::class.java.name,
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                     KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
-                    ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS to StringDeserializer::class.java,
-                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to KafkaAvroDeserializer::class.java,
+                    KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
+                    ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
+                    ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG to "30000",
+                    ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG to "3000",
+                    ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG to 30000,
+                    ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG to 300000,
                 ),
             )
 
@@ -71,6 +80,7 @@ class AivenKafkaConfig(
         consumerFactory: ConsumerFactory<String, GenericRecord>,
         aivenKafkaErrorHandler: AivenKafkaErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<String, GenericRecord> {
+        log.info("Oppretter kafka listener factory")
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
         factory.consumerFactory = consumerFactory
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
