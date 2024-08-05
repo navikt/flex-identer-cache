@@ -2,10 +2,11 @@ package no.nav.helse.flex.kafka
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.AktorService
-import no.nav.helse.flex.repository.deserialiserTilAktor
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.util.toAktor
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -30,19 +31,19 @@ class AktorConsumer(
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        consumerRecord: ConsumerRecord<String, ByteArray>,
+        consumerRecord: ConsumerRecord<String, GenericRecord>,
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
-        log.info("Mottok kafka melding: $consumerRecord")
+        val aktorId = sanitizeKey(consumerRecord.key())
+        // TODO fjern log før prod
+        log.info("Mottok kafka melding med aktorId: $aktorId")
 
         try {
-            val aktor =
-                consumerRecord.value().deserialiserTilAktor()
-                    .also {
-                        it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
-                        it.aktorId = sanitizeKey(consumerRecord.key())
-                    }
+            val aktor = consumerRecord.value().toAktor(aktorId)
+            aktor.also {
+                it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+            }
             log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)

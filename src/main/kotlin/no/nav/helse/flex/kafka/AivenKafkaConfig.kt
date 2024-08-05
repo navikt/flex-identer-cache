@@ -1,11 +1,11 @@
 package no.nav.helse.flex.kafka
 
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SslConfigs
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -19,7 +19,7 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 @Configuration
 class AivenKafkaConfig(
     @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
-    @Value("\${KAFKA_SCHEMA_REGISTRY}") private val schemaRegistryUrl: String,
+    @Value("\${KAFKA_SCHEMA_REGISTRY}") val schemaRegistryUrl: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
     @Value("\${KAFKA_SECURITY_PROTOCOL:SSL}") private val kafkaSecurityProtocol: String,
@@ -59,7 +59,7 @@ class AivenKafkaConfig(
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
                     ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS to StringDeserializer::class.java.name,
-                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to ByteArrayDeserializer::class.java.name,
+                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to KafkaAvroDeserializer::class.java.name,
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                     KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,

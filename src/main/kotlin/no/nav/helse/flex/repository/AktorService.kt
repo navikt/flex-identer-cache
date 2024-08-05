@@ -2,7 +2,6 @@ package no.nav.helse.flex.repository
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 
 @Service
 class AktorService(private val aktorRepository: AktorRepository) {
@@ -12,8 +11,8 @@ class AktorService(private val aktorRepository: AktorRepository) {
         aktor.identifikatorer.forEach { identifikator ->
             aktorRepository.lagreIdentifikator(
                 idnummer = identifikator.idnummer,
-                oppdatert = identifikator.oppdatert ?: OffsetDateTime.now(),
-                type = identifikator.type,
+                oppdatert = identifikator.oppdatert,
+                type = identifikator.type.name,
                 gjeldende = identifikator.gjeldende,
                 aktorId = aktor.aktorId,
             )

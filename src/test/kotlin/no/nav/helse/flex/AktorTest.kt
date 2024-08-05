@@ -1,11 +1,10 @@
 package no.nav.helse.flex
 
 import no.nav.helse.flex.kafka.AKTOR_TOPIC
-import no.nav.helse.flex.kafka.sendAktor
 import no.nav.helse.flex.kafka.ventPaRecords
 import no.nav.helse.flex.repository.Aktor
-import no.nav.helse.flex.repository.IdentType
 import no.nav.helse.flex.repository.Identifikator
+import no.nav.helse.flex.repository.Type
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.amshove.kluent.`should be equal to`
@@ -27,7 +26,7 @@ class AktorTest : FellesTestOppsett() {
         val ident =
             Identifikator(
                 idnummer = 12345678234.toString(),
-                type = IdentType.NPID.name,
+                type = Type.NPID,
                 gjeldende = true,
 //                oppdatert = OffsetDateTime.now(),
             )
@@ -37,7 +36,7 @@ class AktorTest : FellesTestOppsett() {
                 identifikatorer = listOf(ident),
             )
 
-        kafkaProducerForTest.sendAktor(AKTOR_TOPIC, aktor)
+        aktorProducer.sendAktorToTopic(AKTOR_TOPIC, aktor)
         kafkaProducerForTest.flush()
 
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
@@ -53,7 +52,7 @@ class AktorTest : FellesTestOppsett() {
                     identifikator.idnummer `should be equal to` ident.idnummer
                     identifikator.gjeldende `should be equal to` ident.gjeldende
                     ChronoUnit.SECONDS.between(
-                        identifikator.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS),
+                        identifikator.oppdatert.tilOsloZone().truncatedTo(ChronoUnit.SECONDS),
                         OffsetDateTime.now(osloZone).truncatedTo(ChronoUnit.SECONDS),
                     ) `should be in range` -10L..10L
                 }
@@ -66,7 +65,7 @@ class AktorTest : FellesTestOppsett() {
         val ident =
             Identifikator(
                 idnummer = 12345678234.toString(),
-                type = IdentType.FOLKEREGISTERIDENT.name,
+                type = Type.FOLKEREGISTERIDENT,
                 gjeldende = true,
                 oppdatert = OffsetDateTime.now(),
             )
