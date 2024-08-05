@@ -1,11 +1,10 @@
 package no.nav.helse.flex.kafka
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
-import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import no.nav.helse.flex.logger
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -59,11 +58,7 @@ class AivenKafkaConfig(
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ErrorHandlingDeserializer::class.java,
                     ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS to StringDeserializer::class.java.name,
-                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to KafkaAvroDeserializer::class.java.name,
-                    KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
-                    KafkaAvroDeserializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
-                    KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    KafkaAvroDeserializerConfig.AUTO_REGISTER_SCHEMAS to true,
+                    ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS to ByteArrayDeserializer::class.java.name,
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
                     ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG to "30000",
                     ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG to "3000",

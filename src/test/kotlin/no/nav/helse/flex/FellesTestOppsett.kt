@@ -10,7 +10,6 @@ import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
@@ -52,7 +51,7 @@ abstract class FellesTestOppsett {
     lateinit var aktorService: AktorService
 
     @Autowired
-    lateinit var kafkaProducerForTest: KafkaProducer<String, GenericRecord>
+    lateinit var kafkaProducerForTest: KafkaProducer<String, ByteArray>
 
     @Autowired
     lateinit var aktorProducer: AktorProducer

@@ -5,13 +5,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.MappedCollection
-import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -63,16 +64,37 @@ interface AktorRepository : CrudRepository<Aktor, String> {
 }
 
 @Serializable
-@Table("aktor")
 data class Aktor(
     @Id
     var aktorId: String = "",
     @MappedCollection(idColumn = "aktor_id", keyColumn = "aktor_id")
     var identifikatorer: List<Identifikator> = mutableListOf(),
-)
+) {
+    fun serialiser(): ByteArray {
+        return Json.encodeToString(this).toByteArray()
+    }
+
+    companion object {
+        fun deserialiser(aktorBytes: ByteArray): Aktor {
+            return Json.decodeFromString<Aktor>(String(aktorBytes)).also { it.aktorId = sanitizeKey(it.aktorId) }
+        }
+
+        fun sanitizeKey(key: String): String {
+            // strips off all non-ASCII characters
+            var text = key
+            text = text.replace("[^\\x00-\\x7F]".toRegex(), "")
+
+            // erases all the ASCII control characters
+            text = text.replace("\\p{Cntrl}&&[^\r\n\t]".toRegex(), "")
+
+            // removes non-printable characters from Unicode
+            text = text.replace("\\p{C}".toRegex(), "")
+            return text.trim().filter { it.isDigit() }
+        }
+    }
+}
 
 @Serializable
-@Table("identifikator")
 data class Identifikator(
     @Id
     var idnummer: String = "",
