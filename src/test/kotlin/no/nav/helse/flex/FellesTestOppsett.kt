@@ -1,8 +1,8 @@
 package no.nav.helse.flex
 
 import io.getunleash.FakeUnleash
-import no.nav.helse.flex.kafka.AKTOR_TOPIC
 import no.nav.helse.flex.kafka.AktorConsumer
+import no.nav.helse.flex.kafka.AktorProducer
 import no.nav.helse.flex.kafka.KafkaConfig
 import no.nav.helse.flex.kafka.uploadSchema
 import no.nav.helse.flex.repository.AktorRepository
@@ -10,6 +10,7 @@ import no.nav.helse.flex.repository.AktorService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
@@ -51,7 +52,10 @@ abstract class FellesTestOppsett {
     lateinit var aktorService: AktorService
 
     @Autowired
-    lateinit var kafkaProducerForTest: KafkaProducer<String, ByteArray>
+    lateinit var kafkaProducerForTest: KafkaProducer<String, GenericRecord>
+
+    @Autowired
+    lateinit var aktorProducer: AktorProducer
 
     @AfterAll
     fun `Vi resetter databasen`() {
@@ -109,8 +113,8 @@ abstract class FellesTestOppsett {
                     ) // TODO: sett opp mock for å støtte SSL i tester (https)
 
                     // Upload the schema
-                    val schemaRegistryUrl = System.getProperty("spring.kafka.properties.schema-registry-url")
-                    uploadSchema(schemaRegistryUrl, AKTOR_TOPIC, "avro/aktor.avsc")
+                    val schemaRegistryUrl = System.getProperty("KAFKA_SCHEMA_REGISTRY")
+                    uploadSchema(schemaRegistryUrl, "Aktor", "avro/aktor.avsc")
                 }
             }.also { threads.add(it) }
 
