@@ -1,12 +1,11 @@
 package no.nav.helse.flex.kafka
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.Aktor
+import no.nav.helse.flex.repository.Aktor.Companion.sanitizeKey
 import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.serialisertTilString
-import no.nav.helse.flex.util.toAktor
-import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -31,7 +30,7 @@ class AktorConsumer(
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        consumerRecord: ConsumerRecord<String, GenericRecord>,
+        consumerRecord: ConsumerRecord<String, ByteArray>,
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
@@ -40,7 +39,7 @@ class AktorConsumer(
         log.info("Mottok kafka melding med aktorId: $aktorId")
 
         try {
-            val aktor = consumerRecord.value().toAktor(aktorId)
+            val aktor = Aktor.deserialiser(consumerRecord.value())
             aktor.also {
                 it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
             }
@@ -52,18 +51,5 @@ class AktorConsumer(
         } finally {
             acknowledgment.acknowledge()
         }
-    }
-
-    fun sanitizeKey(key: String): String {
-        // strips off all non-ASCII characters
-        var text = key
-        text = text.replace("[^\\x00-\\x7F]".toRegex(), "")
-
-        // erases all the ASCII control characters
-        text = text.replace("\\p{Cntrl}&&[^\r\n\t]".toRegex(), "")
-
-        // removes non-printable characters from Unicode
-        text = text.replace("\\p{C}".toRegex(), "")
-        return text.trim().filter { it.isDigit() }
     }
 }
