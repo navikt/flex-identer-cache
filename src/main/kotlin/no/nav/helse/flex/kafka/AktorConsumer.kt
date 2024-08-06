@@ -6,6 +6,8 @@ import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.serialisertTilString
+import no.nav.helse.flex.util.toAktor
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
@@ -24,13 +26,13 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v15",
+        id = "flex-aktor-dev-v16",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
     fun listen(
-        consumerRecord: ConsumerRecord<String, ByteArray>,
+        consumerRecord: ConsumerRecord<String, GenericRecord>,
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
@@ -39,7 +41,7 @@ class AktorConsumer(
         log.info("Mottok kafka melding med aktorId: $aktorId")
 
         try {
-            val aktor = Aktor.deserialiser(consumerRecord.value())
+            val aktor = consumerRecord.value().toAktor(aktorId)
             aktor.also {
                 it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
             }

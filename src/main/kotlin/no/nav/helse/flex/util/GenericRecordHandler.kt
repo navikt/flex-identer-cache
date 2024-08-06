@@ -3,14 +3,12 @@ package no.nav.helse.flex.util
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.Identifikator
 import no.nav.helse.flex.repository.Type
+import org.apache.avro.generic.GenericArray
 import org.apache.avro.generic.GenericRecord
 import java.time.OffsetDateTime
 
 fun GenericRecord.toAktor(aktorId: String): Aktor {
-    val identifikatorer = this["identifikatorer"]
-    if (identifikatorer !is List<*>) {
-        throw IllegalStateException("Expected a list of identifikatorer, but got: $identifikatorer")
-    }
+    val identifikatorer = (get("identifikatorer") as GenericArray<*>)
 
     val parsetIdentifikatorer =
         identifikatorer.map { identifikator ->
