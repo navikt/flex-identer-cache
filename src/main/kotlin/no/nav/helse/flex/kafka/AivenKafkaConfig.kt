@@ -4,7 +4,6 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import no.nav.helse.flex.logger
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -28,8 +27,6 @@ class AivenKafkaConfig(
     @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
     @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
-    val log = logger()
-
     fun commonConfig() =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBrokers,
@@ -75,7 +72,7 @@ class AivenKafkaConfig(
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "none",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+                    ConsumerConfig.FETCH_MIN_BYTES_CONFIG to "1000",
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
                 )
 

@@ -14,6 +14,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.concurrent.ArrayBlockingQueue
+import kotlin.system.measureTimeMillis
 
 @Component
 class AktorConsumer(
@@ -26,7 +27,7 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-aktor-dev-v14",
+        id = "flex-identer-cache-v1",
         idIsGroup = true,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
@@ -36,17 +37,23 @@ class AktorConsumer(
         log.info("Mottok ${consumerRecords.count()} aktør hendelser")
 
         try {
-            consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
-                val aktorId = Aktor.sanitizeKey(consumerRecord.key())
-                val aktor = consumerRecord.value().toAktor(aktorId)
-                aktor.also {
-                    it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+            var totalByteSize = 0
+            val time =
+                measureTimeMillis {
+                    consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
+                        totalByteSize += consumerRecord.serializedValueSize()
+                        val aktorId = Aktor.sanitizeKey(consumerRecord.key())
+                        val aktor = consumerRecord.value().toAktor(aktorId)
+                        aktor.also {
+                            it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+                        }
+                        log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
+                        buffer.offer(aktor)
+                        aktorService.lagreAktor(aktor)
+                        log.info("Aktor $aktorId ble lagret")
+                    }
                 }
-                log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
-                buffer.offer(aktor)
-                aktorService.lagreAktor(aktor)
-                log.info("Aktor $aktorId ble lagret")
-            }
+            log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millis")
         } catch (e: Exception) {
             log.error(e.message)
         } finally {

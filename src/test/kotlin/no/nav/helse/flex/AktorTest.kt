@@ -38,6 +38,7 @@ class AktorTest : FellesTestOppsett() {
             )
 
         aktorProducer.sendAktorToTopic(AKTOR_TOPIC, aktor)
+        aktorProducer.sendAktorToTopic(AKTOR_TOPIC, aktor)
         kafkaProducerForTest.flush()
 
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
