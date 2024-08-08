@@ -61,9 +61,6 @@ spec:
     inbound:
       rules:
         - application: sykepengesoknad
-    outbound:
-      external:
-        - host: {{kafka_schema_registry}}
   env:
   {{#each env}}
      - name: {{@key}}
