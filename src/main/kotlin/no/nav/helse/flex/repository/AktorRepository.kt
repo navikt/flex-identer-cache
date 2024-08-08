@@ -55,7 +55,7 @@ interface AktorRepository : CrudRepository<Aktor, String> {
 
 data class Aktor(
     @Id
-    var aktorId: String = "",
+    var aktorId: String? = null,
     @MappedCollection(idColumn = "aktor_id", keyColumn = "aktor_id")
     var identifikatorer: List<Identifikator> = mutableListOf(),
 ) {
@@ -77,10 +77,10 @@ data class Aktor(
 
 data class Identifikator(
     @Id
-    var idnummer: String = "",
-    var type: Type = Type.FOLKEREGISTERIDENT,
-    var gjeldende: Boolean = false,
-    var oppdatert: OffsetDateTime = OffsetDateTime.now(),
+    var idnummer: String? = null,
+    var type: Type? = null,
+    var gjeldende: Boolean? = null,
+    var oppdatert: OffsetDateTime? = null,
 )
 
 enum class Type {

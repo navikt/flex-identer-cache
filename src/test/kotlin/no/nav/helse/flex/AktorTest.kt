@@ -44,7 +44,7 @@ class AktorTest : FellesTestOppsett() {
         aktorRecordFraKafka.aktorId `should be equal to` 2286257412903.toString()
 
         // / Sjekker at aktøren blir lagret i db
-        aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
+        aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId ?: "").let { aktorFraDb ->
             aktorFraDb `should not be` null
             aktorFraDb?.let { aktor ->
                 aktor.identifikatorer.size `should be equal to` 1
@@ -53,7 +53,7 @@ class AktorTest : FellesTestOppsett() {
                     identifikator.idnummer `should be equal to` ident.idnummer
                     identifikator.gjeldende `should be equal to` ident.gjeldende
                     ChronoUnit.SECONDS.between(
-                        identifikator.oppdatert.tilOsloZone().truncatedTo(ChronoUnit.SECONDS),
+                        identifikator.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS),
                         OffsetDateTime.now(osloZone).truncatedTo(ChronoUnit.SECONDS),
                     ) `should be in range` -10L..10L
                 }
