@@ -10,7 +10,6 @@ import no.nav.helse.flex.util.tilOsloZone
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be in range`
 import org.amshove.kluent.`should not be`
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -22,7 +21,7 @@ class AktorTest : FellesTestOppsett() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
-    @Disabled
+//    @Disabled
     @Test
     fun `les identer fra topic`() {
         val ident =
