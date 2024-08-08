@@ -87,9 +87,10 @@ class AivenKafkaConfig(
             )
 
         val factory = ConcurrentKafkaListenerContainerFactory<String, GenericRecord>()
-        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.BATCH
         factory.setCommonErrorHandler(aivenKafkaErrorHandler)
         factory.consumerFactory = consumerFactory
+        factory.isBatchListener = true
         return factory
     }
 }
