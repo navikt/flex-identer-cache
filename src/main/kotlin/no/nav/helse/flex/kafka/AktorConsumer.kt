@@ -37,6 +37,7 @@ class AktorConsumer(
         consumerRecord: ConsumerRecord<String, GenericRecord>,
         acknowledgment: Acknowledgment,
     ) {
+        metrikk.personHendelseMottatt()
         try {
             log.info("schemaRegistryUrl: $schemaRegistryUrl")
             val key = consumerRecord.key()

@@ -6,11 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class Metrikk(private val registry: MeterRegistry) {
-    fun dodsfallMottatt() {
-        registry.counter("syfosoknad_dodsmelding_mottatt", Tags.of("type", "info")).increment()
-    }
-
     fun personHendelseMottatt() {
-        registry.counter("syfosoknad_personhendelse_mottatt", Tags.of("type", "info")).increment()
+        registry.counter("flex_identer_cache_personhendelse_mottatt", Tags.of("type", "info")).increment()
     }
 }
