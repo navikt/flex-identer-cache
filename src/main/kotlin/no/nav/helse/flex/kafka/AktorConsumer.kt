@@ -9,7 +9,6 @@ import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.toAktor
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
@@ -20,7 +19,6 @@ import java.util.concurrent.ArrayBlockingQueue
 class AktorConsumer(
     private val metrikk: Metrikk,
     private val aktorService: AktorService,
-    @Value("\${KAFKA_SCHEMA_REGISTRY}") val schemaRegistryUrl: String,
 ) {
     val log = logger()
     val buffer = ArrayBlockingQueue<Aktor>(1000)
@@ -38,12 +36,8 @@ class AktorConsumer(
         acknowledgment: Acknowledgment,
     ) {
         metrikk.personHendelseMottatt()
+        log.info("Mottok kafka melding med key ${consumerRecord.key()}")
         try {
-            log.info("schemaRegistryUrl: $schemaRegistryUrl")
-            val key = consumerRecord.key()
-            val value = consumerRecord.value().toString()
-            log.info("key: $key, value: $value")
-
             val aktorId = Aktor.sanitizeKey(consumerRecord.key())
             val aktor = consumerRecord.value().toAktor(aktorId)
             aktor.also {
@@ -52,6 +46,7 @@ class AktorConsumer(
             log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
             buffer.offer(aktor)
             aktorService.lagreAktor(aktor)
+            log.info("Aktor $aktorId ble lagret")
         } catch (e: Exception) {
             log.error(e.message)
         } finally {
