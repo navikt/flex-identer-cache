@@ -71,7 +71,7 @@ class AivenKafkaConfig(
                 mapOf(
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    ConsumerConfig.GROUP_ID_CONFIG to "sykepengesoknad-backend",
+                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "none",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,

@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import io.getunleash.FakeUnleash
 import no.nav.helse.flex.kafka.AktorConsumer
 import no.nav.helse.flex.kafka.AktorProducer
 import no.nav.helse.flex.kafka.KafkaConfig
@@ -62,15 +61,7 @@ abstract class FellesTestOppsett {
     }
 
     @Autowired
-    lateinit var fakeUnleash: FakeUnleash
-
-    @Autowired
     lateinit var aktorConsumer: AktorConsumer
-
-    @AfterAll
-    fun `Disable unleash toggles`() {
-        fakeUnleash.disableAll()
-    }
 
     companion object {
         init {

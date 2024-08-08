@@ -48,23 +48,12 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-    // Avro dependencies
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
     implementation("org.apache.avro:avro:$avroVersion")
-
-    // Serialization dependencies
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1")
-
-    // Jackson dependencies
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-    // Confluent Kafka dependencies
     implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
     implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
 
-    // Unleash dependencies
-    implementation("io.getunleash:unleash-client-java:$unleashVersion")
+    // Jackson dependencies
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // Micrometer dependencies
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -76,19 +65,11 @@ dependencies {
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("org.apache.avro:avro:$avroVersion")
     implementation("org.hibernate.validator:hibernate-validator")
 
     // PostgreSQL dependencies
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
-    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
-
-    // Springdoc OpenAPI dependencies
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenapiVersion")
 
     // Spring Boot dependencies
     implementation("org.springframework.boot:spring-boot-starter-actuator")
