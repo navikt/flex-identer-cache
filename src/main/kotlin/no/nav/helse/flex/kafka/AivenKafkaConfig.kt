@@ -72,8 +72,10 @@ class AivenKafkaConfig(
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "none",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-                    ConsumerConfig.FETCH_MIN_BYTES_CONFIG to "1000",
+                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "5000",
+                    ConsumerConfig.FETCH_MIN_BYTES_CONFIG to "1000000",
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "600000",
+                    ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES * 2,
                 )
 
         val consumerFactory =
