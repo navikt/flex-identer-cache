@@ -36,7 +36,7 @@ spec:
     application:
       tenant: nav.no
       enabled: true
-      allowAllUsers: true
+      allowAllUsers: false
   gcp:
     sqlInstances:
       - type: POSTGRES_14
@@ -48,16 +48,19 @@ spec:
         diskAutoresize: true
         databases:
           - name: flex-identer-cache-db
-            envVarPrefix: DATABASE
-            users:
-              - name: bigquery-dataprodukt
-              - name: bigquery-datastream
+
         maintenance:
           day: 2
           hour: 2
         flags:
           - name: cloudsql.logical_decoding
             value: "on"
+  kafka:
+    pool: {{kafkaPool}}
+  accessPolicy:
+    inbound:
+      rules:
+        - application: sykepengesoknad
   env:
   {{#each env}}
      - name: {{@key}}
