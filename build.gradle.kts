@@ -68,7 +68,7 @@ tasks {
         useJUnitPlatform()
         jvmArgs("-XX:+EnableDynamicAgentLoading")
         testLogging {
-            events("PASSED", "FAILED", "SKIPPED")
+            events("PASSED", "FAILED", "SKIPPED,")
             exceptionFormat = FULL
         }
         failFast = false
