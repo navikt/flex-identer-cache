@@ -36,7 +36,15 @@ spec:
     application:
       tenant: nav.no
       enabled: true
-      allowAllUsers: false
+      allowAllUsers: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   gcp:
     sqlInstances:
       - type: POSTGRES_14
