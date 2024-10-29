@@ -15,9 +15,6 @@ version = "1.0.0"
 description = "flex-identer-cache"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
-val githubUser: String by project
-val githubPassword: String by project
-
 repositories {
     mavenCentral()
     maven {
@@ -33,13 +30,9 @@ val logstashLogbackEncoderVersion = "8.0"
 val kluentVersion = "1.73"
 val tokenSupportVersion = "5.0.1"
 
-// copy pasted fra sykepengesoknad-backend
 val confluentVersion = "7.6.0"
-val syfoKafkaVersion = "2021.07.20-09.39-6be2c52c"
 val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
-val avroVersion = "1.11.3"
-val unleashVersion = "9.2.0"
-val springdocOpenapiVersion = "2.5.0"
+val avroVersion = "1.11.4"
 val mockitoKotlinVersion = "2.2.0"
 
 dependencies {
@@ -65,6 +58,7 @@ dependencies {
     implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+
     implementation("org.hibernate.validator:hibernate-validator")
 
     // PostgreSQL dependencies
@@ -103,10 +97,18 @@ tasks {
         useJUnitPlatform()
         jvmArgs("-XX:+EnableDynamicAgentLoading")
         testLogging {
-            events("PASSED", "FAILED", "SKIPPED,")
+            events("PASSED", "FAILED", "SKIPPED")
             exceptionFormat = FULL
         }
         failFast = false
+        reports.html.required.set(false)
+        reports.junitXml.required.set(false)
+        maxParallelForks =
+            if (System.getenv("CI") == "true") {
+                (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+            } else {
+                2
+            }
     }
 }
 

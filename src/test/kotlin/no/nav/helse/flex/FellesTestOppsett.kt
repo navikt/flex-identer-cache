@@ -3,9 +3,9 @@ package no.nav.helse.flex
 import no.nav.helse.flex.kafka.AktorConsumer
 import no.nav.helse.flex.kafka.AktorProducer
 import no.nav.helse.flex.kafka.KafkaConfig
-import no.nav.helse.flex.kafka.uploadSchema
 import no.nav.helse.flex.repository.AktorRepository
 import no.nav.helse.flex.repository.AktorService
+import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -19,18 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.containers.Network
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.utility.DockerImageName
 import java.util.*
-import kotlin.concurrent.thread
-
-private class RedisContainer : GenericContainer<RedisContainer>("bitnami/redis:6.2")
-
-private class PostgreSQLContainer14 : PostgreSQLContainer<PostgreSQLContainer14>("postgres:14-alpine")
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureObservability
@@ -66,62 +55,7 @@ abstract class FellesTestOppsett {
 
     companion object {
         init {
-            val threads = mutableListOf<Thread>()
-
-            val network = Network.newNetwork()
-
-            thread {
-                RedisContainer().apply {
-                    withEnv("ALLOW_EMPTY_PASSWORD", "yes")
-                    withExposedPorts(6379)
-                    start()
-
-                    System.setProperty("REDIS_URI_SESSIONS", "rediss://$host:$firstMappedPort")
-                    System.setProperty("REDIS_USERNAME_SESSIONS", "default")
-                    System.setProperty("REDIS_PASSWORD_SESSIONS", "")
-                }
-            }.also { threads.add(it) }
-
-            thread {
-                val kafkaContainer =
-                    KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.3")).apply {
-                        withNetwork(network)
-                        start()
-                        System.setProperty("KAFKA_BROKERS", bootstrapServers)
-                    }
-
-                GenericContainer(DockerImageName.parse("confluentinc/cp-schema-registry:7.5.3")).apply {
-                    withNetwork(network)
-                    withExposedPorts(8081)
-                    withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry")
-                    withEnv("SCHEMA_REGISTRY_LISTENERS", "http://0.0.0.0:8081")
-                    withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", "PLAINTEXT://${kafkaContainer.networkAliases[0]}:9092")
-                    start()
-                    waitingFor(Wait.forHttp("/subjects").forStatusCode(200))
-                    System.setProperty(
-                        "KAFKA_SCHEMA_REGISTRY",
-                        "http://$host:${getMappedPort(8081)}",
-                    ) // TODO: sett opp mock for å støtte SSL i tester (https)
-
-                    // Upload the schema
-                    val schemaRegistryUrl = System.getProperty("KAFKA_SCHEMA_REGISTRY")
-                    uploadSchema(schemaRegistryUrl, "Aktor", "avro/aktor.avsc")
-                }
-            }.also { threads.add(it) }
-
-            thread {
-                PostgreSQLContainer14().apply {
-                    // Cloud SQL har wal_level = 'logical' på grunn av flagget cloudsql.logical_decoding i
-                    // naiserator.yaml. Vi må sette det samme lokalt for at flyway migrering skal fungere.
-                    withCommand("postgres", "-c", "wal_level=logical")
-                    start()
-                    System.setProperty("spring.datasource.url", "$jdbcUrl&reWriteBatchedInserts=true")
-                    System.setProperty("spring.datasource.username", username)
-                    System.setProperty("spring.datasource.password", password)
-                }
-            }.also { threads.add(it) }
-
-            threads.forEach { it.join() }
+            startAlleContainere()
         }
     }
 
