@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.listener.ContainerProperties
+import java.util.UUID
 
 @Configuration
 class AivenKafkaConfig(
@@ -68,7 +69,7 @@ class AivenKafkaConfig(
                 mapOf(
                     KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                     KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to false,
-                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache",
+                    ConsumerConfig.GROUP_ID_CONFIG to "flex-identer-cache-group-${UUID.randomUUID()}",
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,

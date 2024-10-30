@@ -24,8 +24,8 @@ class AktorConsumer(
     @KafkaListener(
         topics = [AKTOR_TOPIC],
         // TODO endre ved prodsetting
-        id = "flex-identer-cache-v11",
-        idIsGroup = true,
+        id = "flex-identer-cache",
+        idIsGroup = false,
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
