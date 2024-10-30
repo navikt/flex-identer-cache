@@ -32,6 +32,9 @@ spec:
       memory: {{memory}}
   tokenx:
     enabled: true
+  redis:
+    - instance: sessions
+      access: readwrite
   azure:
     application:
       tenant: nav.no
