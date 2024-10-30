@@ -2,12 +2,12 @@ package no.nav.helse.flex.repository
 
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.OBJECT_MAPPER
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
+class AktorService() {
+    val aktorHashMap = HashMap<String, Aktor>()
     val log = logger()
 
     fun verifiserAktor(aktor: Aktor): Boolean {
@@ -28,29 +28,15 @@ class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
         }
     }
 
-    fun setValue(
-        key: String,
-        value: String,
-    ) {
-        redisTemplate.opsForValue().set(key, value)
-    }
-
     @Transactional
     fun lagreFlereAktorer(aktorList: List<Aktor>) {
-        redisTemplate.executePipelined { connection ->
-            aktorList.forEach { aktor ->
-                if (verifiserAktor(aktor)) {
-                    val aktorString = OBJECT_MAPPER.writeValueAsString(aktor)
-                    connection.stringCommands()
-                        .set(aktor.aktorId!!.toByteArray(), aktorString.toByteArray())
-                }
-            }
-            null // Return null since executePipelined expects a return type
+        aktorList.forEach { aktor ->
+            verifiserAktor(aktor)
+            aktorHashMap.put(aktor.aktorId!!, aktor)
         }
     }
 
     fun hentAktor(aktorId: String): Aktor? {
-        val aktorString = redisTemplate.opsForValue().get(aktorId)
-        return OBJECT_MAPPER.readValue(aktorString, Aktor::class.java)
+        return aktorHashMap[aktorId]
     }
 }
