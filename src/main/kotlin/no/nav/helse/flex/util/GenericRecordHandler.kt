@@ -24,7 +24,7 @@ fun GenericRecord.toAktor(aktorId: String): Aktor {
                     idnummer = identifikator["idnummer"].toString(),
                     type = type,
                     gjeldende = identifikator["gjeldende"].toString().toBoolean(),
-                    oppdatert = OffsetDateTime.now(),
+                    oppdatert = OffsetDateTime.now(osloZone),
                 )
             } else {
                 throw IllegalStateException("Feil data type for 'identifikatorer': $identifikatorer")

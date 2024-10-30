@@ -3,7 +3,6 @@ package no.nav.helse.flex
 import no.nav.helse.flex.kafka.AktorConsumer
 import no.nav.helse.flex.kafka.AktorProducer
 import no.nav.helse.flex.kafka.KafkaConfig
-import no.nav.helse.flex.repository.AktorRepository
 import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -11,13 +10,13 @@ import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.test.web.servlet.MockMvc
 import java.util.*
 
@@ -33,11 +32,14 @@ abstract class FellesTestOppsett {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    @Autowired
-    lateinit var aktorRepository: AktorRepository
+//    @Autowired
+//    lateinit var aktorRepository: AktorRepository
 
     @Autowired
     lateinit var aktorService: AktorService
+
+    @Autowired
+    lateinit var redisTemplate: RedisTemplate<String, String>
 
     @Autowired
     lateinit var kafkaProducerForTest: KafkaProducer<String, GenericRecord>
@@ -45,10 +47,10 @@ abstract class FellesTestOppsett {
     @Autowired
     lateinit var aktorProducer: AktorProducer
 
-    @AfterAll
-    fun `Vi resetter databasen`() {
-        aktorRepository.deleteAll()
-    }
+//    @AfterAll
+//    fun `Vi resetter databasen`() {
+//        aktorRepository.deleteAll()
+//    }
 
     @Autowired
     lateinit var aktorConsumer: AktorConsumer

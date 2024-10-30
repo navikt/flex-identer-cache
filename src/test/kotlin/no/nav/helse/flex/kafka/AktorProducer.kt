@@ -17,10 +17,7 @@ class AktorProducer(
 ) {
     val log = logger()
 
-    fun sendAktorToTopic(
-        topic: String,
-        aktor: Aktor,
-    ) {
+    fun sendAktorToTopic(aktor: Aktor) {
         printSchemaForSubject(schemaRegistryClient, "Aktor-value")
         sendAktor(AKTOR_TOPIC, aktor)
     }

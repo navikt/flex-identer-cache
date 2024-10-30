@@ -1,6 +1,5 @@
 package no.nav.helse.flex
 
-import no.nav.helse.flex.kafka.AKTOR_TOPIC
 import no.nav.helse.flex.kafka.ventPaRecords
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.Identifikator
@@ -12,7 +11,6 @@ import org.amshove.kluent.`should be in range`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
@@ -21,7 +19,6 @@ class AktorTest : FellesTestOppsett() {
     @Autowired
     private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
-//    @Disabled
     @Test
     fun `les identer fra topic`() {
         val ident =
@@ -37,15 +34,15 @@ class AktorTest : FellesTestOppsett() {
                 identifikatorer = listOf(ident),
             )
 
-        aktorProducer.sendAktorToTopic(AKTOR_TOPIC, aktor)
-        aktorProducer.sendAktorToTopic(AKTOR_TOPIC, aktor)
+        aktorProducer.sendAktorToTopic(aktor)
+        aktorProducer.sendAktorToTopic(aktor)
         kafkaProducerForTest.flush()
 
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
         aktorRecordFraKafka.aktorId `should be equal to` 2286257412903.toString()
 
         // / Sjekker at aktøren blir lagret i db
-        aktorRepository.findByAktorId(aktorRecordFraKafka.aktorId ?: "").let { aktorFraDb ->
+        aktorService.hentAktor(aktorRecordFraKafka.aktorId ?: "").let { aktorFraDb ->
             aktorFraDb `should not be` null
             aktorFraDb?.let { aktor ->
                 aktor.identifikatorer.size `should be equal to` 1
@@ -76,17 +73,13 @@ class AktorTest : FellesTestOppsett() {
                 aktorId = "1456432",
                 identifikatorer = listOf(ident),
             )
-        aktorService.lagreAktor(aktor)
-        assert(antallAktorerIDb() == 1)
-    }
-
-    fun antallAktorerIDb(): Int {
-        return namedParameterJdbcTemplate.queryForObject(
-            """
-                SELECT COUNT(*) FROM identifikator 
-            """,
-            MapSqlParameterSource(),
-            Integer::class.java,
-        )!!.toInt()
+        aktorService.lagreFlereAktorer(listOf(aktor))
+        val lagretIdent = aktorService.hentAktor(aktor.aktorId!!)?.identifikatorer?.first()
+        lagretIdent `should not be` null
+        lagretIdent!!.let {
+            it.idnummer `should be equal to` it.idnummer
+            it.type `should be equal to` ident.type
+            it.gjeldende `should be equal to` ident.gjeldende
+        }
     }
 }

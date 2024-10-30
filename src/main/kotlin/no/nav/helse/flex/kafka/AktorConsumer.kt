@@ -4,15 +4,12 @@ import no.nav.helse.flex.logger
 import no.nav.helse.flex.repository.Aktor
 import no.nav.helse.flex.repository.AktorService
 import no.nav.helse.flex.util.Metrikk
-import no.nav.helse.flex.util.osloZone
-import no.nav.helse.flex.util.serialisertTilString
 import no.nav.helse.flex.util.toAktor
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import java.time.OffsetDateTime
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.system.measureTimeMillis
 
@@ -40,18 +37,15 @@ class AktorConsumer(
             var totalByteSize = 0
             val time =
                 measureTimeMillis {
-                    consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
-                        totalByteSize += consumerRecord.serializedValueSize()
-                        val aktorId = Aktor.sanitizeKey(consumerRecord.key())
-                        val aktor = consumerRecord.value().toAktor(aktorId)
-                        aktor.also {
-                            it.identifikatorer.forEach { identifikator -> identifikator.oppdatert = OffsetDateTime.now(osloZone) }
+                    val aktorList =
+                        consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
+                            totalByteSize += consumerRecord.serializedValueSize()
+                            val aktorId = Aktor.sanitizeKey(consumerRecord.key())
+                            val aktor = consumerRecord.value().toAktor(aktorId)
+                            return@map aktor
                         }
-                        log.info("Forsøker å lagre aktør: ${aktor.serialisertTilString()}")
-                        buffer.offer(aktor)
-                        aktorService.lagreAktor(aktor)
-                        log.info("Aktor $aktorId ble lagret")
-                    }
+                    aktorService.lagreFlereAktorer(aktorList)
+                    aktorList.forEach { aktor -> buffer.offer(aktor) }
                 }
             log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millis")
         } catch (e: Exception) {
