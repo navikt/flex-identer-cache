@@ -19,7 +19,7 @@ class AktorProducer(
 
     fun sendAktorToTopic(aktor: Aktor) {
         printSchemaForSubject(schemaRegistryClient, "Aktor-value")
-        sendAktor(AKTOR_TOPIC, aktor)
+        sendAktor(aktor)
     }
 
     fun printSchemaForSubject(
@@ -35,10 +35,7 @@ class AktorProducer(
         }
     }
 
-    fun sendAktor(
-        topic: String,
-        aktor: Aktor,
-    ) {
+    fun sendAktor(aktor: Aktor) {
         val schema: Schema =
             Schema.Parser().parse(
                 this::class.java.classLoader.getResourceAsStream("avro/aktor.avsc"),
@@ -60,6 +57,10 @@ class AktorProducer(
                 }.toList()
 
         aktorRecord.put("identifikatorer", identifikatorRecords)
-        kafkaProducer.send(ProducerRecord(topic, aktor.aktorId, aktorRecord))
+        kafkaProducer.send(ProducerRecord(AKTOR_TOPIC, aktor.aktorId, aktorRecord))
+    }
+
+    fun sendNullVerdi(aktorId: String) {
+        kafkaProducer.send(ProducerRecord(AKTOR_TOPIC, aktorId, null))
     }
 }

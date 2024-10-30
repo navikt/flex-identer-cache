@@ -23,7 +23,6 @@ class AktorConsumer(
 
     @KafkaListener(
         topics = [AKTOR_TOPIC],
-        // TODO endre ved prodsetting
         id = "flex-identer-cache",
         idIsGroup = false,
         containerFactory = "kafkaAvroListenerContainerFactory",
@@ -31,31 +30,25 @@ class AktorConsumer(
     )
     fun listen(consumerRecords: ConsumerRecords<String, GenericRecord>) {
         metrikk.personHendelseMottatt()
-        log.info("Mottok ${consumerRecords.count()} aktør hendelser")
+        log.info("Mottok ${consumerRecords.count()} aktør records")
 
-        try {
-            var totalByteSize = 0
-            val time =
-                measureTimeMillis {
-                    try {
-                        val aktorList =
-                            consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
-                                totalByteSize += consumerRecord.serializedValueSize()
-                                val aktorId = Aktor.sanitizeKey(consumerRecord.key())
-                                val aktor = consumerRecord.value().toAktor(aktorId)
-                                return@map aktor
-                            }
-                        aktorService.lagreFlereAktorer(aktorList)
-                        aktorList.forEach { aktor -> buffer.offer(aktor) }
-                    } catch (e: Exception) {
-                        log.error(e.message, e)
+        var totalByteSize = 0
+        val time =
+            measureTimeMillis {
+                val aktorList =
+                    consumerRecords.mapNotNull { consumerRecord: ConsumerRecord<String, GenericRecord> ->
+                        try {
+                            totalByteSize += consumerRecord.serializedValueSize()
+                            val aktorId = Aktor.sanitizeKey(consumerRecord.key())
+                            return@mapNotNull consumerRecord.value()?.toAktor(aktorId)
+                        } catch (e: Exception) {
+                            log.error("Klarte ikke prosessere record med key: ${consumerRecord.key()}: ${e.message}", e)
+                            return@mapNotNull null
+                        }
                     }
-                }
-            log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millis")
-        } catch (e: Exception) {
-            log.error(e.message)
-        } finally {
-            log.info("Håndterte alle aktører hendelser")
-        }
+                aktorService.lagreFlereAktorer(aktorList)
+                aktorList.forEach { aktor -> buffer.offer(aktor) }
+            }
+        log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millisekunder")
     }
 }

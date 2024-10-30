@@ -60,6 +60,14 @@ class AktorTest : FellesTestOppsett() {
     }
 
     @Test
+    fun `hånter nullverdier`() {
+        aktorProducer.sendNullVerdi("65432")
+        kafkaProducerForTest.flush()
+
+        aktorConsumer.ventPaRecords(antall = 0)
+    }
+
+    @Test
     fun `behandle ident med type FNR`() {
         val ident =
             Identifikator(
