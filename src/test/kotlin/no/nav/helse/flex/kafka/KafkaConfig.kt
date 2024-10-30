@@ -5,6 +5,7 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import no.nav.helse.flex.logger
+import no.nav.helse.flex.repository.Aktor
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -13,6 +14,7 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.concurrent.ArrayBlockingQueue
 
 @Configuration
 class KafkaConfig(
@@ -48,4 +50,7 @@ class KafkaConfig(
     fun schemaRegistryClient(): SchemaRegistryClient {
         return CachedSchemaRegistryClient(schemaRegistryUrl, 100)
     }
+
+    @Bean
+    fun buffer() = ArrayBlockingQueue<Aktor>(1000)
 }

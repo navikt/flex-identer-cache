@@ -19,8 +19,8 @@ fun AktorConsumer.ventPaRecords(
     val alle = ArrayList<Aktor>()
     runCatching {
         factory.until {
-            while (buffer.isNotEmpty() && alle.size < antall) {
-                buffer.poll()?.let { alle.add(it) }
+            while (buffer?.isNotEmpty() == true && alle.size < antall) {
+                buffer?.poll()?.let { alle.add(it) }
             }
             alle.size == antall
         }

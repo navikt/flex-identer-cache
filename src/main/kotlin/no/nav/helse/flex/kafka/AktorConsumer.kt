@@ -17,9 +17,9 @@ import kotlin.system.measureTimeMillis
 class AktorConsumer(
     private val metrikk: Metrikk,
     private val aktorService: AktorService,
+    val buffer: ArrayBlockingQueue<Aktor>? = null,
 ) {
     val log = logger()
-    val buffer = ArrayBlockingQueue<Aktor>(1000)
 
     @KafkaListener(
         topics = [AKTOR_TOPIC],
@@ -47,7 +47,7 @@ class AktorConsumer(
                         }
                     }
                 aktorService.lagreFlereAktorer(aktorList)
-                aktorList.forEach { aktor -> buffer.offer(aktor) }
+                aktorList.forEach { aktor -> buffer?.offer(aktor) }
             }
         log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millisekunder")
     }
