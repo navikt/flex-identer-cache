@@ -37,15 +37,19 @@ class AktorConsumer(
             var totalByteSize = 0
             val time =
                 measureTimeMillis {
-                    val aktorList =
-                        consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
-                            totalByteSize += consumerRecord.serializedValueSize()
-                            val aktorId = Aktor.sanitizeKey(consumerRecord.key())
-                            val aktor = consumerRecord.value().toAktor(aktorId)
-                            return@map aktor
-                        }
-                    aktorService.lagreFlereAktorer(aktorList)
-                    aktorList.forEach { aktor -> buffer.offer(aktor) }
+                    try {
+                        val aktorList =
+                            consumerRecords.map { consumerRecord: ConsumerRecord<String, GenericRecord> ->
+                                totalByteSize += consumerRecord.serializedValueSize()
+                                val aktorId = Aktor.sanitizeKey(consumerRecord.key())
+                                val aktor = consumerRecord.value().toAktor(aktorId)
+                                return@map aktor
+                            }
+                        aktorService.lagreFlereAktorer(aktorList)
+                        aktorList.forEach { aktor -> buffer.offer(aktor) }
+                    } catch (e: Exception) {
+                        log.error(e.message, e)
+                    }
                 }
             log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millis")
         } catch (e: Exception) {
