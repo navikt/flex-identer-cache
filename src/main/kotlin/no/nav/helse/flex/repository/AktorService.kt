@@ -1,14 +1,13 @@
 package no.nav.helse.flex.repository
 
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AktorService() {
-    val aktorHashMap = HashMap<String, Aktor>()
     val log = logger()
+    val aktorHashMap = HashMap<String, Aktor>()
 
     fun verifiserAktor(aktor: Aktor): Boolean {
         try {
@@ -31,8 +30,9 @@ class AktorService() {
     @Transactional
     fun lagreFlereAktorer(aktorList: List<Aktor>) {
         aktorList.forEach { aktor ->
-            verifiserAktor(aktor)
-            aktorHashMap.put(aktor.aktorId!!, aktor)
+            if (verifiserAktor(aktor)) {
+                aktorHashMap.put(aktor.aktorId!!, aktor)
+            }
         }
     }
 
