@@ -72,7 +72,7 @@ class AivenKafkaConfig(
                     ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 20_000,
+                    ConsumerConfig.MAX_POLL_RECORDS_CONFIG to 10_000,
                     ConsumerConfig.FETCH_MIN_BYTES_CONFIG to 5_000_000,
                     ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to 300_000,
                     ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG to ConsumerConfig.DEFAULT_MAX_PARTITION_FETCH_BYTES * 4,
