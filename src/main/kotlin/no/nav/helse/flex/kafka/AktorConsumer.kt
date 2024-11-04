@@ -12,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @Component
@@ -22,6 +23,7 @@ class AktorConsumer(
     val buffer: ArrayBlockingQueue<Aktor>? = null,
 ) {
     val log = logger()
+    private val isReady: AtomicBoolean = AtomicBoolean(false)
 
     @KafkaListener(
         topics = [AKTOR_TOPIC],
@@ -54,5 +56,18 @@ class AktorConsumer(
                 aktorList.forEach { aktor -> buffer?.offer(aktor) }
             }
         log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millisekunder")
+
+        if (checkReadinessCondition(consumerRecords)) {
+            isReady.set(true)
+        }
     }
+
+    // Helper function to determine readiness condition
+    private fun checkReadinessCondition(consumerRecords: ConsumerRecords<String, GenericRecord>): Boolean {
+        // Implement logic to decide when the application is ready, e.g., enough records processed
+        return true // Replace with actual readiness condition
+    }
+
+    // Method to expose readiness status
+    fun isConsumerReady(): Boolean = isReady.get()
 }
