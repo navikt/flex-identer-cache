@@ -1,5 +1,6 @@
 package no.nav.helse.flex.kafka
 
+import no.nav.helse.flex.EnvironmentToggles
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.model.Aktor
 import no.nav.helse.flex.model.AktorService
@@ -17,6 +18,7 @@ import kotlin.system.measureTimeMillis
 class AktorConsumer(
     private val metrikk: Metrikk,
     private val aktorService: AktorService,
+    private val environmentToggles: EnvironmentToggles,
     val buffer: ArrayBlockingQueue<Aktor>? = null,
 ) {
     val log = logger()
@@ -42,7 +44,9 @@ class AktorConsumer(
                             val aktorId = Aktor.sanitizeKey(consumerRecord.key())
                             return@mapNotNull consumerRecord.value()?.toAktor(aktorId)
                         } catch (e: Exception) {
-                            log.error("Klarte ikke prosessere record med key: ${consumerRecord.key()}: ${e.message}", e)
+                            if (environmentToggles.isQ()) {
+                                log.error("Klarte ikke prosessere record med key: ${consumerRecord.key()}: ${e.message}", e)
+                            }
                             return@mapNotNull null
                         }
                     }

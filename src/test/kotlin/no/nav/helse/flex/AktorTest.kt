@@ -14,7 +14,6 @@ import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
 class AktorTest : FellesTestOppsett() {
-
     @Test
     fun `les identer fra topic og lagre i cache`() {
         val ident =
