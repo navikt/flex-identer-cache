@@ -54,7 +54,7 @@ class AktorTest : FellesTestOppsett() {
     }
 
     @Test
-    fun `hånter nullverdier`() {
+    fun `håndter nullverdier`() {
         aktorProducer.sendNullVerdi("65432")
         kafkaProducerForTest.flush()
 

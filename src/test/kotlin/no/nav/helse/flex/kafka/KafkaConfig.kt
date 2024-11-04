@@ -4,7 +4,6 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.model.Aktor
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -23,15 +22,14 @@ class KafkaConfig(
     @Value("\${KAFKA_SCHEMA_REGISTRY_USER}") private val schemaRegistryUser: String,
     @Value("\${KAFKA_SCHEMA_REGISTRY_PASSWORD}") private val schemaRegistryPassword: String,
 ) {
-    val log = logger()
-
     @Bean
     fun kafkaProducerForTest(): KafkaProducer<String, GenericRecord> {
-        val configs =
+        return KafkaProducer(
             mapOf(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to KafkaAvroSerializer::class.java,
-                ProducerConfig.BATCH_SIZE_CONFIG to 100,
+                ProducerConfig.BATCH_SIZE_CONFIG to 150_000,
+                ProducerConfig.LINGER_MS_CONFIG to 1000 * 60,
                 ProducerConfig.ACKS_CONFIG to "all",
                 ProducerConfig.RETRIES_CONFIG to 10,
                 ProducerConfig.RETRY_BACKOFF_MS_CONFIG to 100,
@@ -40,10 +38,8 @@ class KafkaConfig(
                 KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG to schemaRegistryUrl,
                 KafkaAvroSerializerConfig.USER_INFO_CONFIG to "$schemaRegistryUser:$schemaRegistryPassword",
                 KafkaAvroSerializerConfig.AUTO_REGISTER_SCHEMAS to true,
-            )
-        log.info("Kafka Producer Config: $configs")
-
-        return KafkaProducer(configs)
+            ),
+        )
     }
 
     @Bean
@@ -52,5 +48,5 @@ class KafkaConfig(
     }
 
     @Bean
-    fun buffer() = ArrayBlockingQueue<Aktor>(1000)
+    fun buffer() = ArrayBlockingQueue<Aktor>(10_000)
 }

@@ -7,6 +7,7 @@ import no.nav.helse.flex.model.AktorService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.toAktor
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.springframework.kafka.annotation.KafkaListener
@@ -32,7 +33,10 @@ class AktorConsumer(
         containerFactory = "kafkaAvroListenerContainerFactory",
         properties = ["auto.offset.reset = earliest"],
     )
-    fun listen(consumerRecords: ConsumerRecords<String, GenericRecord>) {
+    fun listen(
+        consumerRecords: ConsumerRecords<String, GenericRecord>,
+        consumer: Consumer<String, GenericRecord>,
+    ) {
         metrikk.personHendelseMottatt()
         log.info("Mottok ${consumerRecords.count()} aktør records")
 
@@ -53,21 +57,28 @@ class AktorConsumer(
                         }
                     }
                 aktorService.lagreFlereAktorer(aktorList)
+                isReady.set(harLestHeleTopicet(consumer).also { log.info("lest hele: $it") })
                 aktorList.forEach { aktor -> buffer?.offer(aktor) }
             }
         log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millisekunder")
+    }
 
-        if (checkReadinessCondition(consumerRecords)) {
-            isReady.set(true)
+    fun harLestHeleTopicet(kafkaConsumer: Consumer<String, GenericRecord>): Boolean {
+        val partitions = kafkaConsumer.assignment()
+        if (partitions.isEmpty()) return false
+
+        val endOffsets = kafkaConsumer.endOffsets(partitions)
+
+        for (partition in partitions) {
+            val denneOffset = kafkaConsumer.position(partition)
+            val sisteOffset = endOffsets[partition] ?: continue
+            if (denneOffset < sisteOffset) {
+                return false
+            }
         }
+        log.info("Lest hele topicet")
+        return true
     }
 
-    // Helper function to determine readiness condition
-    private fun checkReadinessCondition(consumerRecords: ConsumerRecords<String, GenericRecord>): Boolean {
-        // Implement logic to decide when the application is ready, e.g., enough records processed
-        return true // Replace with actual readiness condition
-    }
-
-    // Method to expose readiness status
     fun isConsumerReady(): Boolean = isReady.get()
 }
