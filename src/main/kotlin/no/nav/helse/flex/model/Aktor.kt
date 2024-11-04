@@ -1,13 +1,11 @@
 package no.nav.helse.flex.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.MappedCollection
 import java.time.OffsetDateTime
 
 data class Aktor(
     @Id
     var aktorId: String? = null,
-    @MappedCollection(idColumn = "aktor_id", keyColumn = "aktor_id")
     var identifikatorer: List<Identifikator> = mutableListOf(),
 ) {
     companion object {

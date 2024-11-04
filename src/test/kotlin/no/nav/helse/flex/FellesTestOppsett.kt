@@ -32,9 +32,6 @@ abstract class FellesTestOppsett {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-//    @Autowired
-//    lateinit var aktorRepository: AktorRepository
-
     @Autowired
     lateinit var aktorService: AktorService
 
@@ -46,11 +43,6 @@ abstract class FellesTestOppsett {
 
     @Autowired
     lateinit var aktorProducer: AktorProducer
-
-//    @AfterAll
-//    fun `Vi resetter databasen`() {
-//        aktorRepository.deleteAll()
-//    }
 
     @Autowired
     lateinit var aktorConsumer: AktorConsumer

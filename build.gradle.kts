@@ -60,13 +60,8 @@ dependencies {
 
     implementation("org.hibernate.validator:hibernate-validator")
 
-    // PostgreSQL dependencies
-    implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-database-postgresql")
-
     // Spring Boot dependencies
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -77,7 +72,6 @@ dependencies {
     testImplementation("org.awaitility:awaitility")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:kafka")
-    testImplementation("org.testcontainers:postgresql")
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
 }

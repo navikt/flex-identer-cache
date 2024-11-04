@@ -8,11 +8,6 @@ spring:
     active: default
   flyway:
     enabled: true
-  datasource:
-    url: "${DATABASE_JDBC_URL}"
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 5
   kafka:
     client-id: ${nais.app.name}-${fasit.environment.name}
     consumer:

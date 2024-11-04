@@ -48,24 +48,6 @@ spec:
       destinations:
         - id: loki
         - id: elastic
-  gcp:
-    sqlInstances:
-      - type: POSTGRES_14
-        tier: {{db_tier}}
-        diskType: SSD
-        diskSize: 10
-        highAvailability: {{db_highAvailability}}
-        pointInTimeRecovery: {{db_pointInTimeRecovery}}
-        diskAutoresize: true
-        databases:
-          - name: flex-identer-cache-db
-
-        maintenance:
-          day: 2
-          hour: 2
-        flags:
-          - name: cloudsql.logical_decoding
-            value: "on"
   kafka:
     pool: {{kafkaPool}}
   accessPolicy:

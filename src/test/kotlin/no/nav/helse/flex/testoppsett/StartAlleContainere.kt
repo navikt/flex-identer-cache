@@ -7,5 +7,4 @@ fun startAlleContainere() {
     startRedisContainer()
     val kafkaContainer = startKafkaContainer(network)
     startSchemaRegistry(network, kafkaContainer)
-    startPostgresContainer()
 }
