@@ -1,8 +1,8 @@
 package no.nav.helse.flex.util
 
-import no.nav.helse.flex.repository.Aktor
-import no.nav.helse.flex.repository.Identifikator
-import no.nav.helse.flex.repository.Type
+import no.nav.helse.flex.model.Aktor
+import no.nav.helse.flex.model.Identifikator
+import no.nav.helse.flex.model.Type
 import org.apache.avro.generic.GenericArray
 import org.apache.avro.generic.GenericRecord
 import java.time.OffsetDateTime

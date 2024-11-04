@@ -2,7 +2,7 @@ package no.nav.helse.flex.kafka
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.repository.Aktor
+import no.nav.helse.flex.model.Aktor
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord

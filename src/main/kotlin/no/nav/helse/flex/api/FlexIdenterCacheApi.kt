@@ -1,7 +1,7 @@
 package no.nav.helse.flex.api
 
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation
-import no.nav.helse.flex.repository.AktorService
+import no.nav.helse.flex.model.AktorService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 

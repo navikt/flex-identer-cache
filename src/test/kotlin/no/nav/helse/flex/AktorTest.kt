@@ -1,32 +1,28 @@
 package no.nav.helse.flex
 
 import no.nav.helse.flex.kafka.ventPaRecords
-import no.nav.helse.flex.repository.Aktor
-import no.nav.helse.flex.repository.Identifikator
-import no.nav.helse.flex.repository.Type
+import no.nav.helse.flex.model.Aktor
+import no.nav.helse.flex.model.Identifikator
+import no.nav.helse.flex.model.Type
 import no.nav.helse.flex.util.osloZone
 import no.nav.helse.flex.util.tilOsloZone
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be in range`
 import org.amshove.kluent.`should not be`
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
 class AktorTest : FellesTestOppsett() {
-    @Autowired
-    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
 
     @Test
-    fun `les identer fra topic`() {
+    fun `les identer fra topic og lagre i cache`() {
         val ident =
             Identifikator(
                 idnummer = 12345678234.toString(),
                 type = Type.NPID,
                 gjeldende = true,
-//                oppdatert = OffsetDateTime.now(),
+                oppdatert = OffsetDateTime.now(),
             )
         val aktor =
             Aktor(
@@ -41,7 +37,6 @@ class AktorTest : FellesTestOppsett() {
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
         aktorRecordFraKafka.aktorId `should be equal to` 2286257412903.toString()
 
-        // / Sjekker at aktøren blir lagret i db
         aktorService.hentAktor(aktorRecordFraKafka.aktorId ?: "").let { aktorFraDb ->
             aktorFraDb `should not be` null
             aktorFraDb?.let { aktor ->

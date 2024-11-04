@@ -3,7 +3,7 @@ package no.nav.helse.flex
 import no.nav.helse.flex.kafka.AktorConsumer
 import no.nav.helse.flex.kafka.AktorProducer
 import no.nav.helse.flex.kafka.KafkaConfig
-import no.nav.helse.flex.repository.AktorService
+import no.nav.helse.flex.model.AktorService
 import no.nav.helse.flex.testoppsett.startAlleContainere
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback

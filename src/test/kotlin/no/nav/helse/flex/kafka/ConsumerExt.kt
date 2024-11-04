@@ -1,6 +1,6 @@
 package no.nav.helse.flex.kafka
 
-import no.nav.helse.flex.repository.Aktor
+import no.nav.helse.flex.model.Aktor
 import org.awaitility.Awaitility.await
 import java.time.Duration
 

@@ -1,8 +1,8 @@
 package no.nav.helse.flex.kafka
 
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.repository.Aktor
-import no.nav.helse.flex.repository.AktorService
+import no.nav.helse.flex.model.Aktor
+import no.nav.helse.flex.model.AktorService
 import no.nav.helse.flex.util.Metrikk
 import no.nav.helse.flex.util.toAktor
 import org.apache.avro.generic.GenericRecord

@@ -1,4 +1,4 @@
-package no.nav.helse.flex.repository
+package no.nav.helse.flex.model
 
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.OBJECT_MAPPER
