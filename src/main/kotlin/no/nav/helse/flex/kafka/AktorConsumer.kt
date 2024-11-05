@@ -1,6 +1,6 @@
 package no.nav.helse.flex.kafka
 
-import no.nav.helse.flex.EnvironmentToggles
+import no.nav.helse.flex.config.EnvironmentToggles
 import no.nav.helse.flex.logger
 import no.nav.helse.flex.model.Aktor
 import no.nav.helse.flex.model.AktorService

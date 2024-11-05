@@ -6,6 +6,7 @@ import no.nav.helse.flex.model.Identifikator
 import no.nav.helse.flex.model.Type
 import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetDateTime
@@ -40,10 +41,10 @@ class ApplicationTest : FellesTestOppsett() {
                 identifikatorer = listOf(ident),
             )
 
-        // Ikke klar før siste offset er lest
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/kafka"))
-            .andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("DOWN"))
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/api/klar")
+                .contentType(MediaType.APPLICATION_JSON),
+        ).andExpect(MockMvcResultMatchers.status().isServiceUnavailable).andReturn().response.contentAsString
 
         repeat(500) { aktorProducer.sendAktorToTopic(aktor, false) }
         kafkaProducerForTest.flush()
@@ -51,8 +52,7 @@ class ApplicationTest : FellesTestOppsett() {
         aktorConsumer.isConsumerReady() `should be` true
 
         // Er klar når siste offset er lest
-        mockMvc.perform(MockMvcRequestBuilders.get("/internal/health/kafka"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/klar"))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"))
     }
 }

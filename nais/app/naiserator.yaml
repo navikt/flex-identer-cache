@@ -17,7 +17,7 @@ spec:
   liveness:
     path: /internal/health/liveness
   readiness:
-    path: /internal/health/readiness
+    path: /api/klar
   startup:
     path: /internal/health/liveness
     initialDelay: 40
