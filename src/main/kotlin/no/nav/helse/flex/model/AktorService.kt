@@ -43,6 +43,19 @@ class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
                     val aktorString = OBJECT_MAPPER.writeValueAsString(aktor)
                     connection.stringCommands()
                         .set(aktor.aktorId!!.toByteArray(), aktorString.toByteArray())
+
+                    fun lagreIdentForAktor(aktorId: String?) {
+                        aktor.identifikatorer.forEach { identifikator ->
+                            identifikator.type?.name ?: return@forEach
+                            val identId = identifikator.idnummer ?: return@forEach
+
+                            val identKey = "ident:$identId"
+                            connection.stringCommands()
+                                .set(identKey.toByteArray(), aktorId!!.toByteArray())
+                        }
+                    }
+
+                    lagreIdentForAktor(aktor.aktorId)
                 }
             }
             null // Return null since executePipelined expects a return type
