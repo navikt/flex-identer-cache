@@ -7,7 +7,7 @@ import java.util.*
 fun FellesTestOppsett.buildAzureClaimSet(
     subject: String,
     issuer: String = "azureator",
-    audience: String = "syfosoknad-client-id",
+    audience: String = "flex-identer-cache-client-id",
     claims: HashMap<String, String> = hashMapOf(),
 ): String =
     server.token(
@@ -30,7 +30,7 @@ fun MockOAuth2Server.token(
     subject: String,
     issuerId: String = "selvbetjening",
     clientId: String = UUID.randomUUID().toString(),
-    audience: String = "loginservice-client-id",
+    audience: String = "flex-identer-cache-client-id",
     claims: Map<String, Any> = mapOf("acr" to "Level4"),
 ): String {
     return this.issueToken(

@@ -32,8 +32,7 @@ no.nav.security.jwt:
       discoveryurl: http://localhost:${mock-oauth2-server.port}/tokenx/.well-known/openid-configuration
       accepted_audience: flex-identer-cache-client-id
 
-AZURE_APP_PRE_AUTHORIZED_APPS: "[]"
-#{\"name\":\"dev-gcp:flex:sykepengesoknad-arkivering-oppgave\",\"clientId\":\"sykepengesoknad-arkivering-oppgave-client-id\"},{\"name\":\"dev-gcp:flex:flex-syketilfelle\",\"clientId\":\"flex-syketilfelle-client-id\"},{\"name\":\"dev-gcp:flex:flex-sykepengesoknad-backend\",\"clientId\":\"flex-sykepengesoknad-backend-client-id\"}
+AZURE_APP_PRE_AUTHORIZED_APPS: "[{\"name\":\"dev-gcp:flex:sykepengesoknad-backend\",\"clientId\":\"sykepengesoknad-backend-client-id\"}]"
 
 elector.path: dont_look_for_leader
 
