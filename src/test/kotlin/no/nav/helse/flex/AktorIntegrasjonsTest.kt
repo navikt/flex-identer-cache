@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
-class AktorTest : FellesTestOppsett() {
+class AktorIntegrasjonsTest : FellesTestOppsett() {
     @Test
     fun `les identer fra topic og lagre i cache`() {
         val ident =
@@ -36,7 +36,7 @@ class AktorTest : FellesTestOppsett() {
         val aktorRecordFraKafka = aktorConsumer.ventPaRecords(antall = 1).first()
         aktorRecordFraKafka.aktorId `should be equal to` 2286257412903.toString()
 
-        aktorService.hentAktor(aktorRecordFraKafka.aktorId ?: "").let { aktorFraDb ->
+        aktorService.hentAktor(aktorRecordFraKafka.aktorId).let { aktorFraDb ->
             aktorFraDb `should not be` null
             aktorFraDb?.let { aktor ->
                 aktor.identifikatorer.size `should be equal to` 1
@@ -45,7 +45,7 @@ class AktorTest : FellesTestOppsett() {
                     identifikator.idnummer `should be equal to` ident.idnummer
                     identifikator.gjeldende `should be equal to` ident.gjeldende
                     ChronoUnit.SECONDS.between(
-                        identifikator.oppdatert?.tilOsloZone()?.truncatedTo(ChronoUnit.SECONDS),
+                        identifikator.oppdatert.tilOsloZone().truncatedTo(ChronoUnit.SECONDS),
                         OffsetDateTime.now(osloZone).truncatedTo(ChronoUnit.SECONDS),
                     ) `should be in range` -10L..10L
                 }
@@ -76,7 +76,7 @@ class AktorTest : FellesTestOppsett() {
                 identifikatorer = listOf(ident),
             )
         aktorService.lagreFlereAktorer(listOf(aktor))
-        val lagretIdent = aktorService.hentAktor(aktor.aktorId!!)?.identifikatorer?.first()
+        val lagretIdent = aktorService.hentAktor(aktor.aktorId)?.identifikatorer?.first()
         lagretIdent `should not be` null
         lagretIdent!!.let {
             it.idnummer `should be equal to` it.idnummer

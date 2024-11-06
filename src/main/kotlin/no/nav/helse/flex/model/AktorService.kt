@@ -13,12 +13,12 @@ class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
             aktorList.forEach { aktor ->
                 val aktorString = OBJECT_MAPPER.writeValueAsString(aktor)
                 connection.stringCommands()
-                    .set(aktor.aktorId!!.toByteArray(), aktorString.toByteArray())
+                    .set(aktor.aktorId.toByteArray(), aktorString.toByteArray())
 
                 fun lagreIdentForAktor(aktorId: String?) {
                     aktor.identifikatorer.forEach { identifikator ->
-                        identifikator.type?.name ?: return@forEach
-                        val identId = identifikator.idnummer ?: return@forEach
+                        identifikator.type.name
+                        val identId = identifikator.idnummer
 
                         val identKey = "ident:$identId"
                         connection.stringCommands()
