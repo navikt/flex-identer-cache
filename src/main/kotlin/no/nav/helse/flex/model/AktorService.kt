@@ -1,6 +1,5 @@
 package no.nav.helse.flex.model
 
-import no.nav.helse.flex.logger
 import no.nav.helse.flex.util.OBJECT_MAPPER
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
@@ -8,55 +7,26 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
-    val log = logger()
-
-    fun verifiserAktor(aktor: Aktor): Boolean {
-        try {
-            requireNotNull(aktor.aktorId) { "Aktor ID kan ikke være null" }
-            val identifikatorer = requireNotNull(aktor.identifikatorer) { "Identifikatorer kan ikke være null" }
-
-            identifikatorer.forEach { identifikator ->
-                requireNotNull(identifikator.idnummer) { "ID-nummer kan ikke være null" }
-                requireNotNull(identifikator.oppdatert) { "Oppdatert kan ikke være null" }
-                requireNotNull(identifikator.type?.name) { "Type kan ikke være null" }
-                requireNotNull(identifikator.gjeldende) { "Gjeldende kan ikke være null" }
-            }
-            return true
-        } catch (e: Exception) {
-            log.error("Feil på aktør med aktørId ${aktor.aktorId}", e.message)
-            return false
-        }
-    }
-
-    fun setValue(
-        key: String,
-        value: String,
-    ) {
-        redisTemplate.opsForValue().set(key, value)
-    }
-
     @Transactional
     fun lagreFlereAktorer(aktorList: List<Aktor>) {
         redisTemplate.executePipelined { connection ->
             aktorList.forEach { aktor ->
-                if (verifiserAktor(aktor)) {
-                    val aktorString = OBJECT_MAPPER.writeValueAsString(aktor)
-                    connection.stringCommands()
-                        .set(aktor.aktorId!!.toByteArray(), aktorString.toByteArray())
+                val aktorString = OBJECT_MAPPER.writeValueAsString(aktor)
+                connection.stringCommands()
+                    .set(aktor.aktorId!!.toByteArray(), aktorString.toByteArray())
 
-                    fun lagreIdentForAktor(aktorId: String?) {
-                        aktor.identifikatorer.forEach { identifikator ->
-                            identifikator.type?.name ?: return@forEach
-                            val identId = identifikator.idnummer ?: return@forEach
+                fun lagreIdentForAktor(aktorId: String?) {
+                    aktor.identifikatorer.forEach { identifikator ->
+                        identifikator.type?.name ?: return@forEach
+                        val identId = identifikator.idnummer ?: return@forEach
 
-                            val identKey = "ident:$identId"
-                            connection.stringCommands()
-                                .set(identKey.toByteArray(), aktorId!!.toByteArray())
-                        }
+                        val identKey = "ident:$identId"
+                        connection.stringCommands()
+                            .set(identKey.toByteArray(), aktorId!!.toByteArray())
                     }
-
-                    lagreIdentForAktor(aktor.aktorId)
                 }
+
+                lagreIdentForAktor(aktor.aktorId)
             }
             null // Return null since executePipelined expects a return type
         }
@@ -66,21 +36,16 @@ class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
         val aktorString =
             redisTemplate.opsForValue().get(aktorId)
                 ?: return null
+
         return OBJECT_MAPPER.readValue(aktorString, Aktor::class.java)
     }
 
     fun hentAktorForIdent(ident: String): Aktor? {
-        // Bygg nøkkelen for ident-mapping, basert på typen og den sanitiserte ident-verdien
         val identKey = "ident:$ident"
+        val aktorId =
+            redisTemplate.opsForValue().get(identKey)
+                ?: return null
 
-        // Hent aktør-id som er lagret under ident-nøkkelen
-        val aktorId = redisTemplate.opsForValue().get(identKey)
-
-        // Hvis aktør-id ble funnet, bruk den til å hente hele Aktor-objektet
-        return if (aktorId != null) {
-            hentAktor(aktorId)
-        } else {
-            null
-        }
+        return hentAktor(aktorId)
     }
 }

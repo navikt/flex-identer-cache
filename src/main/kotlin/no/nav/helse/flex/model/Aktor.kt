@@ -8,6 +8,22 @@ data class Aktor(
     var aktorId: String? = null,
     var identifikatorer: List<Identifikator> = mutableListOf(),
 ) {
+    init {
+        this.verifiser()
+    }
+
+    private fun verifiser() {
+        requireNotNull(this.aktorId) { "Aktor ID kan ikke være null" }
+        val identifikatorer = requireNotNull(this.identifikatorer) { "Identifikatorer kan ikke være null" }
+
+        identifikatorer.forEach { identifikator ->
+            requireNotNull(identifikator.idnummer) { "ID-nummer kan ikke være null" }
+            requireNotNull(identifikator.oppdatert) { "Oppdatert kan ikke være null" }
+            requireNotNull(identifikator.type?.name) { "Type kan ikke være null" }
+            requireNotNull(identifikator.gjeldende) { "Gjeldende kan ikke være null" }
+        }
+    }
+
     companion object {
         fun sanitizeKey(key: String): String {
             // strips off all non-ASCII characters

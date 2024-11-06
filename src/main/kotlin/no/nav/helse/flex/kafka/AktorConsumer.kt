@@ -57,7 +57,7 @@ class AktorConsumer(
                         }
                     }
                 aktorService.lagreFlereAktorer(aktorList)
-                isReady.set(harLestHeleTopicet(consumer).also { log.info("lest hele: $it") })
+                isReady.set(harLestHeleTopicet(consumer).also { log.info("Har lest hele topicet: $it") })
                 aktorList.forEach { aktor -> buffer?.offer(aktor) }
             }
         log.info("Prossesserte ${consumerRecords.count()} records, med størrelse $totalByteSize bytes, iløpet av $time millisekunder")
@@ -76,7 +76,6 @@ class AktorConsumer(
                 return false
             }
         }
-        log.info("Lest hele topicet")
         return true
     }
 

@@ -17,7 +17,7 @@ fun GenericRecord.toAktor(aktorId: String): Aktor {
                 val type =
                     try {
                         Type.valueOf(typeString)
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         throw IllegalStateException("Mottok ident med ukjent type: $typeString")
                     }
                 Identifikator(
