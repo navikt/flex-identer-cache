@@ -15,7 +15,7 @@ import java.time.OffsetDateTime
 
 class FlexIdenterCacheApiTest : FellesTestOppsett() {
     @Test
-    fun hentIdenterForAktorTest()  {
+    fun hentIdenterForAktorTest() {
         val identifikator =
             Identifikator(
                 idnummer = "234567",
@@ -23,7 +23,21 @@ class FlexIdenterCacheApiTest : FellesTestOppsett() {
                 gjeldende = true,
                 oppdatert = OffsetDateTime.now().tilOsloZone(),
             )
-        val aktor = Aktor("456745", listOf(identifikator))
+        val identifikator2 =
+            Identifikator(
+                idnummer = "345665",
+                type = Type.NPID,
+                gjeldende = false,
+                oppdatert = OffsetDateTime.now().tilOsloZone(),
+            )
+        val identifikator3 =
+            Identifikator(
+                idnummer = "734745",
+                type = Type.AKTORID,
+                gjeldende = false,
+                oppdatert = OffsetDateTime.now().tilOsloZone(),
+            )
+        val aktor = Aktor(identifikator3.idnummer, listOf(identifikator, identifikator2, identifikator3))
         aktorService.lagreFlereAktorer(listOf(aktor))
 
         val json =
@@ -35,6 +49,46 @@ class FlexIdenterCacheApiTest : FellesTestOppsett() {
             ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
 
         json `should not be` null
-        OBJECT_MAPPER.readValue(json, Aktor::class.java).aktorId `should be equal to` aktor.aktorId
+        val hentetAktor = OBJECT_MAPPER.readValue(json, Aktor::class.java)
+        hentetAktor.aktorId `should be equal to` aktor.aktorId
+    }
+
+    @Test
+    fun hentIdenterForIdentTest() {
+        val identifikator =
+            Identifikator(
+                idnummer = "234567",
+                type = Type.FOLKEREGISTERIDENT,
+                gjeldende = true,
+                oppdatert = OffsetDateTime.now().tilOsloZone(),
+            )
+        val identifikator2 =
+            Identifikator(
+                idnummer = "345665",
+                type = Type.NPID,
+                gjeldende = false,
+                oppdatert = OffsetDateTime.now().tilOsloZone(),
+            )
+        val identifikator3 =
+            Identifikator(
+                idnummer = "734745",
+                type = Type.AKTORID,
+                gjeldende = false,
+                oppdatert = OffsetDateTime.now().tilOsloZone(),
+            )
+        val aktor = Aktor(identifikator3.idnummer, listOf(identifikator, identifikator2, identifikator3))
+        aktorService.lagreFlereAktorer(listOf(aktor))
+
+        val json =
+            mockMvc.perform(
+                post("/api/v1/identer/ident")
+                    .header("Authorization", "Bearer ${skapAzureJwt("sykepengesoknad-backend-client-id")}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .queryParam("ident", identifikator.idnummer),
+            ).andExpect(MockMvcResultMatchers.status().isOk).andReturn().response.contentAsString
+
+        json `should not be` null
+        val hentetAktor = OBJECT_MAPPER.readValue(json, Aktor::class.java)
+        hentetAktor.aktorId `should be equal to` aktor.aktorId
     }
 }

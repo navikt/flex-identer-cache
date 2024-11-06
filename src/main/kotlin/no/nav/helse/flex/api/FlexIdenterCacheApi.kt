@@ -28,4 +28,19 @@ class FlexIdenterCacheApi(
         )
         return aktorService.hentAktor(aktorId)
     }
+
+    @PostMapping("/api/v1/identer/ident")
+    @ResponseBody
+    @ProtectedWithClaims(issuer = AZUREATOR)
+    fun hentIdenterForIdent(
+        @RequestParam ident: String,
+    ): Aktor? {
+        clientIdValidation.validateClientId(
+            ClientIdValidation.NamespaceAndApp(
+                namespace = "flex",
+                app = "sykepengesoknad-backend",
+            ),
+        )
+        return aktorService.hentAktorForIdent(ident)
+    }
 }

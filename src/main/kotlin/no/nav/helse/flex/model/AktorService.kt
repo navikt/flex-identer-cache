@@ -63,7 +63,24 @@ class AktorService(private val redisTemplate: RedisTemplate<String, String>) {
     }
 
     fun hentAktor(aktorId: String): Aktor? {
-        val aktorString = redisTemplate.opsForValue().get(aktorId)
+        val aktorString =
+            redisTemplate.opsForValue().get(aktorId)
+                ?: return null
         return OBJECT_MAPPER.readValue(aktorString, Aktor::class.java)
+    }
+
+    fun hentAktorForIdent(ident: String): Aktor? {
+        // Bygg nøkkelen for ident-mapping, basert på typen og den sanitiserte ident-verdien
+        val identKey = "ident:$ident"
+
+        // Hent aktør-id som er lagret under ident-nøkkelen
+        val aktorId = redisTemplate.opsForValue().get(identKey)
+
+        // Hvis aktør-id ble funnet, bruk den til å hente hele Aktor-objektet
+        return if (aktorId != null) {
+            hentAktor(aktorId)
+        } else {
+            null
+        }
     }
 }
