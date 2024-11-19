@@ -2,16 +2,19 @@ server:
   port: 8080
 
 spring:
+  cache.type: redis
   main.banner-mode: 'off'
   profiles:
     active: default
   flyway:
     enabled: true
-  datasource:
-    url: "${DATABASE_JDBC_URL}&reWriteBatchedInserts=true"
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 5
+  kafka:
+    client-id: ${nais.app.name}-${fasit.environment.name}
+    consumer:
+      group-id: ${nais.app.name}-${fasit.environment.name}
+      max-poll-records: 1
+      auto-offset-reset: earliest
+      enable-auto-commit: false
 
 management:
   endpoint:
