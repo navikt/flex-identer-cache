@@ -5,7 +5,7 @@ import no.nav.helse.flex.api.AbstractApiError
 import no.nav.helse.flex.api.LogLevel
 import no.nav.helse.flex.clientidvalidation.ClientIdValidation.NamespaceAndApp
 import no.nav.helse.flex.logger
-import no.nav.helse.flex.objectMapper
+import no.nav.helse.flex.util.OBJECT_MAPPER
 import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -17,7 +17,7 @@ class ClientIdValidation(
     @Value("\${AZURE_APP_PRE_AUTHORIZED_APPS}") private val azureAppPreAuthorizedApps: String,
 ) {
     private val log = logger()
-    private val allowedClientIds: List<PreAuthorizedClient> = objectMapper.readValue(azureAppPreAuthorizedApps)
+    private val allowedClientIds: List<PreAuthorizedClient> = OBJECT_MAPPER.readValue(azureAppPreAuthorizedApps)
 
     data class NamespaceAndApp(val namespace: String, val app: String)
 

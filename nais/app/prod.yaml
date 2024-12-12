@@ -1,10 +1,8 @@
 environment: prod
 replicas_min: 2
 replicas_max: 3
-cpu: 100m
-memory: 600Mi
-db_tier: db-custom-1-3840
-db_highAvailability: true
-db_pointInTimeRecovery: true
+cpu: 700m
+memory: 2100Mi
 env:
   SPRING_PROFILES_ACTIVE: default
+  SKRIVEMODUS: READWRITE
