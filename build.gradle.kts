@@ -14,13 +14,13 @@ version = "1.0.0"
 description = "flex-identer-cache"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
-val githubUser: String by project
-val githubPassword: String by project
-
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/maven-release")
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+    }
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
     }
 }
 
@@ -29,28 +29,51 @@ val logstashLogbackEncoderVersion = "8.0"
 val kluentVersion = "1.73"
 val tokenSupportVersion = "5.0.19"
 
-dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("org.hibernate.validator:hibernate-validator")
-    implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
-    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+val confluentVersion = "7.6.0"
+val sykepengesoknadKafkaVersion = "2024.03.21-14.13-5011349f"
+val avroVersion = "1.11.4"
+val mockitoKotlinVersion = "2.2.0"
 
-    testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.awaitility:awaitility")
+dependencies {
+    // Kotlin dependencies
+    implementation(kotlin("reflect"))
+    implementation(kotlin("stdlib"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+
+    implementation("org.apache.avro:avro:$avroVersion")
+    implementation("io.confluent:kafka-connect-avro-converter:$confluentVersion")
+    implementation("io.confluent:kafka-schema-registry-client:$confluentVersion")
+
+    // Jackson dependencies
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Micrometer dependencies
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
+    // Logstash dependencies
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
+
+    // NAV dependencies
+    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
+    implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+    implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+
+    implementation("org.hibernate.validator:hibernate-validator")
+
+    // Spring Boot dependencies
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Test dependencies
     testImplementation("no.nav.security:token-validation-spring-test:$tokenSupportVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    testImplementation("org.awaitility:awaitility")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:kafka")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:$testContainersVersion"))
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:$mockitoKotlinVersion")
 }
 
 kotlin {
@@ -68,10 +91,18 @@ tasks {
         useJUnitPlatform()
         jvmArgs("-XX:+EnableDynamicAgentLoading")
         testLogging {
-            events("PASSED", "FAILED", "SKIPPED,")
+            events("PASSED", "FAILED", "SKIPPED")
             exceptionFormat = FULL
         }
         failFast = false
+        reports.html.required.set(false)
+        reports.junitXml.required.set(false)
+        maxParallelForks =
+            if (System.getenv("CI") == "true") {
+                (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(1).coerceAtMost(4)
+            } else {
+                2
+            }
     }
 }
 
